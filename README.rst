@@ -1,6 +1,6 @@
-==========================================
-Vivek Jayaraman's lab importer for Ovation
-==========================================
+=========================================
+Jayaraman lab's importer code for Ovation
+=========================================
 
 
 This project contains Matlab[1]_ code for importing data for Vivek Jayaraman's lab into the `Ovation Scientific Data Management System <http://physionconsulting.com/web/Ovation.html>`.
@@ -17,35 +17,17 @@ To use the importer:
     >> context = NewDataContext(<path_to_connection_file>, <username>);
     >> project = context.insertProject(<project name>, <project purpose>, <project start date>);
     >> experiment = project.insertExperiment(<expt purpose>, <expt start date>);
-#. Insert a PL-DA-PS ``.PDS`` file as an ``EpochGroup``::
 
-    >> epochGroup = ImportPladpsPDS(experiment,...
-        <path to PDS file>,...
-        trialFunctionName,...
-        experimentTimeZone)
-        
-
-#. Export spike sorting data from a ``.plx`` to a Matlab ``.mat`` file::
-    
-    >> plx2mat ??
-    
-#. Append ``DerivedResponses`` with spike times and spike waveforms to ``Epochs`` already in the database::
-
-    >> ImportPladpsPlx(epochGroup,...
-        plxFilePath,...
-        expFilePath);
-
-This step will will issue a warning ``Epochs`` in the plexon data are not already represented by ``Epoch`` instances in the Ovation database.
-
+#. TODO: add the rest
 
 Automated tests
 ---------------
 
 To run the automated test suite:
 
-#. Add ``pldaps-importer`` folder to the Matlab path
-#. Add Matlab xUnit (``pldaps-importer/matlab-xunit-doctest/xunit``) to the Matlab path
-#. From within the ``pldaps-importer/test`` directory::
+#. Add ``jayaraman-importer`` folder to the Matlab path
+#. Add Matlab xUnit (``jayaraman-importer/matlab-xunit-doctest/xunit``) to the Matlab path
+#. From within the ``jayaraman-importer/test`` directory::
     
     >> runtestsuite
     
