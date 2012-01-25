@@ -3,6 +3,8 @@
 
 test/ovation
 
+test-output.xml
+
 # Objy
 *.boot
 *.fdb
