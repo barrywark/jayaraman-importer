@@ -1,3 +1,5 @@
+% Copyright (c) 2012 Physion Consulting, LLC
+
 function runtestsuite(test_folder)
     % This script builds a new Ovation database for testing and imports the
     % test fixture. Run this script from the pladps-importer/test directory.
@@ -14,7 +16,8 @@ function runtestsuite(test_folder)
     
     % We're tied to the test fixture defined by these files, but this is the
     % only dependency. There shouldn't be any magic numbers in the test code.
-    xsgFile = [test_folder '/fixtures/AA0001AAAA0003.xsg'];
+    xsgFile = [test_folder '/fixtures/AA0002AAAA0002.xsg'];
+    setenv('XSG_FILE', xsgFile);
     
     % Delete the test database if it exists
     if(exist(connection_file, 'file') ~= 0)
