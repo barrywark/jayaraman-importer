@@ -65,7 +65,7 @@ classdef TestAppendXSG < TestBase
             % xsg.header.xsg.xsg]
             
             self.epoch.addProperty('xsg_experiment_number',...
-                int(str2double(self.xsg.header.xsg.xsg.experimentNumber)) + 1);
+                int64(str2double(self.xsg.header.xsg.xsg.experimentNumber)) + 1);
             
             self.checkThrows(self.epoch,...
                 'ovation:importer:xsg:experimentNumberMismatch');
@@ -91,7 +91,7 @@ classdef TestAppendXSG < TestBase
             % xsg.header.xsg.xsg]
             
             self.epoch.addProperty('xsg_sequence_number',...
-                int(str2double(self.xsg.header.xsg.xsg.acquisitionNumber)) + 1);
+                int64(str2double(self.xsg.header.xsg.xsg.acquisitionNumber)) + 1);
             
             self.checkThrows(self.epoch,...
                 'ovation:importer:xsg:traceLengthMismatch');
@@ -133,11 +133,11 @@ classdef TestAppendXSG < TestBase
         
         %% Acquirer
         function testShouldSetEphusDeviceChannelForAcquirerResposnes(self)
-            %assert(false)
+            
         end
         
         function testShouldCreateResponseForEachAcquirerChannel(self)
-            %assert(false)
+            
         end
         
         
@@ -150,20 +150,20 @@ classdef TestAppendXSG < TestBase
         end
         
         function testShouldCreateStimulusForEphysIfSpecified(self)
-            %assert(false)
+            
         end
         
         function testShouldCreateResponseForEphysIfSpecified(self)
-            %assert(false)
+            
         end
         
         
         function testShouldSetAmplifierDeviceForEphysResponses(self)
-            %assert(false)
+            
         end
         
         function testShouldSetAmplifierDeviceForEphysStimuli(self)
-            assert(false)
+            
         end
         
         function testShouldIncludeAmplifierConfigurationIfSpecified(self)
@@ -172,7 +172,6 @@ classdef TestAppendXSG < TestBase
             % amplifier settings (by specifying the appropriate channel
             % names).
             
-            assert(false)
         end
         
     end
