@@ -17,18 +17,13 @@ function epoch = AppendTifData(epoch,...
     %    ntrials = [];
     %end
     
-    tif_struct = scim_openTif(tifFile);
-    %% linescan
-    if tif_struct.acq.linescan
-        % do other stuff
-    end    
+    tif_struct = scim_openTif(tifFile, 'header');   
+    manufacturer = 'pmt_manufacturer'; % fix
     
     %% check that start and end times for the epoch overlap with the tif file
     % get from tiff file? last modified timestamp?
     
     %% create tif response
-    %device = epoch.getExperiment().externalDevice('', '');% scanimage name
-    %and manufacturer. do we need this?
     
     device_params.software_version = tif_struct.software.version;
     device_params.software_version_minor_revision = tif_struct.software.minorRev;
@@ -38,60 +33,91 @@ function epoch = AppendTifData(epoch,...
     
     pmt_parameters = struct();
     acq_names = fieldnames(tif_struct.acq);
-    for i=0:length(acq_names)
+    disp(acq_names);
+    for i=1:length(acq_names)
         name = acq_names(i);
+        disp(name);
         name = name{1};
+        disp(name);
         if name(end) == '1' 
-            pmt_paramters.pmt1.(name) = tif_struct.acq.(name);
+            disp('here')
+            pmt_parameters.pmt1.(name) = tif_struct.acq.(name);
         elseif name(end) == '2'
-            pmt_paramters.pmt2.(name) = tif_struct.acq.(name);
+            pmt_parameters.pmt2.(name) = tif_struct.acq.(name);
         elseif name(end) == '3'
-            pmt_paramters.pmt3.(name) = tif_struct.acq.(name);
+            pmt_parameters.pmt3.(name) = tif_struct.acq.(name);
         elseif name(end) == '4'
-            pmt_paramters.pmt4.(name) = tif_struct.acq.(name);
+            pmt_parameters.pmt4.(name) = tif_struct.acq.(name);
         else
             device_params.(name) = tif_struct.acq.(name);
         end  
     end
+    disp(pmt_parameters);
     
-    if tif_struct.savingChanel1
+    
+    if tif_struct.acq.savingChannel1
         deviceName = 'pmt1';
         params = pmt_parameters.pmt1;
-        addResponse(deviceName, manufacturer, params, tif_struct);   
+        addResponse(deviceName, manufacturer, params, epoch, tif_struct);   
     end
-    if tif_struct.savingChanel2
+    if tif_struct.acq.savingChannel2
         deviceName = 'pmt2';
         params = pmt_parameters.pmt2;
-        addResponse(deviceName, manufacturer, params, tif_struct); 
+        addResponse(deviceName, manufacturer, params, epoch, tif_struct); 
     end
-    if tif_struct.savingChanel3
+    if tif_struct.acq.savingChannel3
         deviceName = 'pmt3';
         params = pmt_parameters.pmt3;
-        addResponse(deviceName, manufacturer, params, tif_struct); 
+        addResponse(deviceName, manufacturer, params, epoch, tif_struct); 
     end
-    if tif_struct.savingChanel4
+    if tif_struct.acq.savingChannel4
         deviceName = 'pmt4';
         params = pmt_parameters.pmt4;
-        addResponse(deviceName, manufacturer, params, tif_struct); 
+        addResponse(deviceName, manufacturer, params, epoch, tif_struct); 
     end
 
+    % empty response with url pointing to response
     function addResponse(deviceName, manufacturer, pmt_params, epoch, tif_struct)
-        pmt = experiment.externalDevice(deviceName, manufacturer);
+        pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, manufacturer);
         units = 'volts'; %?
-        dimensionLabels = ['X', 'Y', 'frame'];
-        samplingRate = [tif_struct.acq.pixelsPerLine, tif_struct.acq.linesPerFrame, tif_struct.acq.frameRate];
-        samplingRateUnits = ['pixels', 'pixels', 'Hz';
+        
+        frameDimensionLabel = 'time'; % or space?
+        frameSamplingRate = tif_struct.acq.frameRate;
+        frameSamplingUnit = 'Hz'; % kHz?
+        
+        % ask about zstep
+        
+        % why are pixelsPerline and linesPerFrame swapped, are they
+        % appropriately named X and Y?
+        [XSamplingRate, XSamplingUnit, XLabel] = getXResolution(tif_struct);
+        [YSamplingRate, YSamplingUnit, YLabel] = getYResolution(tif_struct);
+        dimensionLabels = [XLabel, YLabel, frameDimensionLabel];
+        samplingRate = [XSamplingRate, YSamplingRate, frameSamplingRate];
+        samplingRateUnits = [XSamplingUnit, YSamplingUnit, frameSamplingUnit];
         r = epoch.insertResponse(pmt,...
             struct2map(pmt_params),...
             NumericData([0, 0, 0]),...
             units,...
-            dimensionLabels;...
+            dimensionLabels,...
             samplingRate,...
             samplingRateUnits,...
-            Response.TIFF_DATA_UTI); % empy response with url pointing to response
+            Response.TIFF_DATA_UTI); 
+        dataRetrievalFunction = 'scm_openTif';
         %r.addProperty('__ovation_url', relativeUrlToFile);
-        %r.addProperty('__ovation_retrieval_funcion', dataRetrievalFunction);
-        %r.addProperty('__ovation_retrieval_parameters', {deviceName(end)}); %chanel number 
+        r.addProperty('__ovation_retrieval_funcion', dataRetrievalFunction);
+        r.addProperty('__ovation_retrieval_parameters', {tifFile, deviceName(end)}); % by chanel number? 
         %TODO: r.addProperty('filterColor', filterColor); %read filter color from text file
+    end
+
+    function [resolution, units, label] = getXResolution(tif_struct)
+        resolution = tif_struct.acq.pixelsPerLine;
+        units = 'cm? pixels?'; % ask about this
+        label = 'X'; %?
+    end
+
+    function [resolution, units, label] = getYResolution(tif_struct)
+        resolution = tif_struct.acq.linesPerFrame;
+        units = 'cm? pixels?'; % ask about this
+        label = 'Y'; %?
     end
 end
