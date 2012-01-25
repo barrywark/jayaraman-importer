@@ -21,7 +21,7 @@ function epoch = appendXSG(epoch,...
             timezone);
         
         diff = org.joda.time.Period(startTime, epoch.getStartTime()).toStandardDuration();
-        if(diff.getMillis() > maxDifference*1000)
+        if(abs(diff.getMillis()) > maxDifference*1000)
             error('ovation:importer:xsg:triggerTimeMismatch', 'XSG trigger time differs from epoch startTime by more than 0.5s.');
         end
         
@@ -43,7 +43,7 @@ function epoch = appendXSG(epoch,...
             timezone);
         
         diff = org.joda.time.Period(startTime, epoch.getStartTime()).toStandardDuration();
-        if(diff.getMillis() > maxDifference*1000)
+        if(abs(diff.getMillis()) > maxDifference*1000)
             error('ovation:importer:xsg:triggerTimeMismatch', 'XSG trigger time differs from epoch startTime by more than 0.5s.');
         end
         
@@ -65,7 +65,7 @@ function epoch = appendXSG(epoch,...
             timezone);
         
         diff = org.joda.time.Period(startTime, epoch.getStartTime()).toStandardDuration();
-        if(diff.getMillis() > maxDifference*1000)
+        if(abs(diff.getMillis()) > maxDifference*1000)
             error('ovation:importer:xsg:triggerTimeMismatch', 'XSG trigger time differs from epoch startTime by more than 0.5s.');
         end
         
@@ -74,6 +74,23 @@ function epoch = appendXSG(epoch,...
         end
     else
         error('ovation:importer:xsg:missingRequiredValue', 'XSG file does not contain ephys, stimulator, or acquirer data.');
+    end
+    
+    %% Check Experiment, Set and Sequence values
+    
+    experimentNumber = epoch.getProperty('xsg_experiment_number');
+    if(~isempty(experimentNumber))
+        if(length(experimentNumber) > 1)
+            error('ovation:importer:xsg:tooManyExperimentNumberValues',...
+                'More than one xsg_experiment_number property value present on this Epoch.');
+        end
+        
+        experimentNumber = experimentNumber(1);
+        
+        if(int64(str2double(xsg.header.xsg.xsg.experimentNumber)) ~= experimentNumber)
+            error('ovation:importer:xsg:experimentNumberMismatch',...
+            'xsg_experiment_number value on this Epoch does not match the experimentNumber in xsg header.');
+        end
     end
     
     

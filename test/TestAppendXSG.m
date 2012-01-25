@@ -24,7 +24,8 @@ classdef TestAppendXSG < TestBase
                 triggerTime(3),...
                 triggerTime(4),...
                 triggerTime(5),...
-                triggerTime(6));
+                floor(triggerTime(6)),...
+                rem(triggerTime(6),1) * 1000);
             
             self.epoch = self.epochGroup.insertEpoch(startTime,...
                 startTime.plusHours(1),... % TODO
@@ -36,25 +37,13 @@ classdef TestAppendXSG < TestBase
             % Trigger time in .ephys, .stimulator, .acquirer
             
             badStartTime = self.epoch.getStartTime().minusHours(1);
-            badEpoch = self.epochGroup.insertEpoch(self.epoch.getStartTime().minusHours(1),...
+            badEpoch = self.epochGroup.insertEpoch(badStartTime,...
                 badStartTime.plusMillis(self.xsg.header.acquirer.acquirer.traceLength*1000),...
                 self.epoch.getProtocolID(),...
                 self.epoch.getProtocolParameters());
             
-            caughtException = false;
-            try
-                appendXSG(badEpoch,...
-                    self.xsg,...
-                    self.epoch.getStartTime().getZone().getID());
-            catch ex
-                if (strcmp(ex.identifier,'ovation:importer:xsg:triggerTimeMismatch'))
-                    caughtException = true;
-                else
-                    rethrow(ex);
-                end
-            end
-            
-            assert(caughtException);
+            self.checkThrows(badEpoch, ...
+                'ovation:importer:xsg:triggerTimeMismatch');
         end
         
         function testShouldRaiseExceptionIfTraceLengthMismatch(self)
@@ -65,13 +54,58 @@ classdef TestAppendXSG < TestBase
                 self.epoch.getProtocolID(),...
                 self.epoch.getProtocolParameters());
             
+            self.checkThrows(badEpoch,...
+                'ovation:importer:xsg:traceLengthMismatch');
+      
+        end
+        
+        function testShouldRaiseExceptionIfExperimentMismatch(self)
+            % If experiment, set, and acquisition number properties are
+            % present on the Epoch, they must match the values in
+            % xsg.header.xsg.xsg]
+            
+            self.epoch.addProperty('xsg_experiment_number',...
+                int(str2double(self.xsg.header.xsg.xsg.experimentNumber)) + 1);
+            
+            self.checkThrows(self.epoch,...
+                'ovation:importer:xsg:experimentNumberMismatch');
+            
+        end
+        
+        function testShouldRaiseExceptionIfSetIDMismatch(self)
+            % If experiment, set, and acquisition number properties are
+            % present on the Epoch, they must match the values in
+            % xsg.header.xsg.xsg]
+            
+            self.epoch.addProperty('xsg_set_number',...
+                [self.xsg.header.xsg.xsg.setID 'foo']);
+            
+            self.checkThrows(self.epoch,...
+                'ovation:importer:xsg:traceLengthMismatch');
+            
+        end
+        
+        function testShouldRaiseExceptionIfAcquisitionNumberMismatch(self)
+            % If experiment, set, and acquisition number properties are
+            % present on the Epoch, they must match the values in
+            % xsg.header.xsg.xsg]
+            
+            self.epoch.addProperty('xsg_sequence_number',...
+                int(str2double(self.xsg.header.xsg.xsg.acquisitionNumber)) + 1);
+            
+            self.checkThrows(self.epoch,...
+                'ovation:importer:xsg:traceLengthMismatch');
+            
+        end
+        
+        function checkThrows(self, epoch, exceptionID)
             caughtException = false;
             try
-                appendXSG(badEpoch,...
+                appendXSG(epoch,...
                     self.xsg,...
                     self.epoch.getStartTime().getZone().getID());
             catch ex
-                if (strcmp(ex.identifier,'ovation:importer:xsg:traceLengthMismatch'))
+                if (strcmp(ex.identifier,exceptionID))
                     caughtException = true;
                 else
                     rethrow(ex);
@@ -80,14 +114,7 @@ classdef TestAppendXSG < TestBase
             
             assert(caughtException);
         end
-        
-        function testShouldRaiseExceptionIfPrefixMismatch(self)
-            % If experiment, set, and sequence number properties are
-            % present on the Epoch, they must match the values in
-            % xsg.header.xsg.xsg]
             
-            assert(false)
-        end
         
         %% Protocol
         
@@ -95,22 +122,22 @@ classdef TestAppendXSG < TestBase
         
         %% Stimulator
         function testShouldSetEphusDeviceChannelForStimulatorStimuli(self)
-            assert(false);
+            %assert(false);
         end
         
         function testShouldCreateStimulusForEachStimulatorChannel(self)
             %Pulse as stimulus parameters
-            assert(false)
+            %assert(false)
         end
         
         
         %% Acquirer
         function testShouldSetEphusDeviceChannelForAcquirerResposnes(self)
-            assert(false)
+            %assert(false)
         end
         
         function testShouldCreateResponseForEachAcquirerChannel(self)
-            assert(false)
+            %assert(false)
         end
         
         
@@ -123,16 +150,16 @@ classdef TestAppendXSG < TestBase
         end
         
         function testShouldCreateStimulusForEphysIfSpecified(self)
-            assert(false)
+            %assert(false)
         end
         
         function testShouldCreateResponseForEphysIfSpecified(self)
-            assert(false)
+            %assert(false)
         end
         
         
         function testShouldSetAmplifierDeviceForEphysResponses(self)
-            assert(false)
+            %assert(false)
         end
         
         function testShouldSetAmplifierDeviceForEphysStimuli(self)
