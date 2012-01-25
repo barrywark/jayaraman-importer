@@ -2,8 +2,6 @@
 
 classdef TestAppendXSG < TestBase
     
-    % Copyright (c) 2012 Physion Consulting, LLC
-    
     properties
         xsg
         epoch
@@ -16,31 +14,71 @@ classdef TestAppendXSG < TestBase
         end
         
         function setUp(self)
-          setUp@TestBase(self);
-          
-          import ovation.*
-          
-          triggerTime = xsg.header.acquirer.acquirer.triggerTime;
-          startTime = datetime(triggerTime(1),...
-              triggerTime(2),...
-              triggerTime(3),...
-              triggerTime(4),...
-              triggerTime(5),...
-              triggerTime(6));
-          
-          self.epoch = self.epochGroup.insertEpoch(startTime,...
-              startTime.plusHours(1),... % TODO
-              'jayarama-importer.test.TestAppendXSG',...
-              struct2map(struct()));
+            setUp@TestBase(self);
+            
+            import ovation.*
+            
+            triggerTime = self.xsg.header.acquirer.acquirer.triggerTime;
+            startTime = datetime(triggerTime(1),...
+                triggerTime(2),...
+                triggerTime(3),...
+                triggerTime(4),...
+                triggerTime(5),...
+                triggerTime(6));
+            
+            self.epoch = self.epochGroup.insertEpoch(startTime,...
+                startTime.plusHours(1),... % TODO
+                'jayarama-importer.test.TestAppendXSG',...
+                struct2map(struct()));
         end
         
         function testShouldRaiseExceptionIfTriggerTimeMismatch(self)
             % Trigger time in .ephys, .stimulator, .acquirer
             
-            badEpoch = self.epochGroup.insertEpoch(startTime.minusHours(1),...
-                startTime.minusMinutes(30),...
+            badStartTime = self.epoch.getStartTime().minusHours(1);
+            badEpoch = self.epochGroup.insertEpoch(self.epoch.getStartTime().minusHours(1),...
+                badStartTime.plusMillis(self.xsg.header.acquirer.acquirer.traceLength*1000),...
                 self.epoch.getProtocolID(),...
                 self.epoch.getProtocolParameters());
+            
+            caughtException = false;
+            try
+                appendXSG(badEpoch,...
+                    self.xsg,...
+                    self.epoch.getStartTime().getZone().getID());
+            catch ex
+                if (strcmp(ex.identifier,'ovation:importer:xsg:triggerTimeMismatch'))
+                    caughtException = true;
+                else
+                    rethrow(ex);
+                end
+            end
+            
+            assert(caughtException);
+        end
+        
+        function testShouldRaiseExceptionIfTraceLengthMismatch(self)
+            % traceLength time in .ephys, .stimulator, .acquirer
+            
+            badEpoch = self.epochGroup.insertEpoch(self.epoch.getStartTime(),...
+                self.epoch.getStartTime().plusSeconds(self.xsg.header.acquirer.acquirer.traceLength*2),...
+                self.epoch.getProtocolID(),...
+                self.epoch.getProtocolParameters());
+            
+            caughtException = false;
+            try
+                appendXSG(badEpoch,...
+                    self.xsg,...
+                    self.epoch.getStartTime().getZone().getID());
+            catch ex
+                if (strcmp(ex.identifier,'ovation:importer:xsg:traceLengthMismatch'))
+                    caughtException = true;
+                else
+                    rethrow(ex);
+                end
+            end
+            
+            assert(caughtException);
         end
         
         function testShouldRaiseExceptionIfPrefixMismatch(self)
@@ -109,6 +147,6 @@ classdef TestAppendXSG < TestBase
             
             assert(false)
         end
-
+        
     end
 end
