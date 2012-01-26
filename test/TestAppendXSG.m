@@ -201,6 +201,8 @@ classdef TestAppendXSG < TestBase
                     param = stimulus.getStimulusParameter(paramName);
                     assert(~isempty(param));
                 end
+                
+                assert(strcmp(stimulus.getUnits(),'V'));
             end
         end
         
