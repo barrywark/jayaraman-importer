@@ -9,7 +9,7 @@ function runtestsuite(test_folder)
     % re-importing the test fixture data.
     
     
-    % N.B. these values should match in TestPldapsBase
+    % N.B. these values should match in TestBase
     connection_file = [test_folder '/ovation/matlab_test.connection'];
     username = 'TestUser';
     password = 'password';
