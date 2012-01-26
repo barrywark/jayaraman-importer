@@ -175,7 +175,7 @@ classdef TestAppendXSG < TestBase
                 if(~isempty(stim.channels(i).portID))
                     assert(devParams.portID == stim.channels(i).portID);
                 end
-                if(~isempty(stim.channels(i).channelID))
+                if(~isempty(stim.channels(i).lineID))
                     assert(devParams.lineID == stim.channels(i).lineID);
                 end
                 
@@ -192,7 +192,15 @@ classdef TestAppendXSG < TestBase
                 stimParamNames = fieldnames(stimParams);
                 for k = 1:length(stimParamNames)
                     paramName = stimParamNames{k};
-                    assert(stimulus.getStimulusParameter(paramName).equals(stimParams.(paramName)));
+                    param = stimulus.getStimulusParameter(paramName);
+                    if(ischar(param))
+                        assert(strcmp(param, stimParams.(paramName)));
+                    elseif(strcmp(class(param) == 'ovation.NumericData'))
+                        assert(all(...
+                            param.getFloatingPointData() == stimParams.(paramName)));
+                    else
+                        assert(all(param == stimParams.(paramName)));
+                    end
                 end
                 
                 % Check sampleRate
