@@ -27,10 +27,20 @@ classdef TestAppendXSG < TestBase
                 floor(triggerTime(6)),...
                 rem(triggerTime(6),1) * 1000);
             
+            traceLength = self.xsg.header.acquirer.acquirer.traceLength;
             self.epoch = self.epochGroup.insertEpoch(startTime,...
-                startTime.plusHours(1),... % TODO
+                startTime.plusMillis(traceLength * 1000),...
                 'jayarama-importer.test.TestAppendXSG',...
                 struct2map(struct()));
+        end
+        
+        function testShouldRequireFileFormatVersion(self)
+           xsgMod = self.xsg;
+           xsgMod.header.xsg.xsg.xsgFileFormatVersion = '1.3.0';
+           
+           self.checkThrows(self.epoch,...
+               'ovation:xsg_importer:fileVersion',...
+               xsgMod);
         end
         
         function testShouldRaiseExceptionIfTriggerTimeMismatch(self)
@@ -43,7 +53,7 @@ classdef TestAppendXSG < TestBase
                 self.epoch.getProtocolParameters());
             
             self.checkThrows(badEpoch, ...
-                'ovation:importer:xsg:triggerTimeMismatch');
+                'ovation:xsg_importer:triggerTimeMismatch');
         end
         
         function testShouldRaiseExceptionIfTraceLengthMismatch(self)
@@ -55,7 +65,7 @@ classdef TestAppendXSG < TestBase
                 self.epoch.getProtocolParameters());
             
             self.checkThrows(badEpoch,...
-                'ovation:importer:xsg:traceLengthMismatch');
+                'ovation:xsg_importer:traceLengthMismatch');
       
         end
         
@@ -68,7 +78,7 @@ classdef TestAppendXSG < TestBase
                 int64(str2double(self.xsg.header.xsg.xsg.experimentNumber)) + 1);
             
             self.checkThrows(self.epoch,...
-                'ovation:importer:xsg:experimentNumberMismatch');
+                'ovation:xsg_importer:experimentNumberMismatch');
             
         end
         
@@ -77,11 +87,11 @@ classdef TestAppendXSG < TestBase
             % present on the Epoch, they must match the values in
             % xsg.header.xsg.xsg]
             
-            self.epoch.addProperty('xsg_set_number',...
+            self.epoch.addProperty('xsg_setID',...
                 [self.xsg.header.xsg.xsg.setID 'foo']);
             
             self.checkThrows(self.epoch,...
-                'ovation:importer:xsg:traceLengthMismatch');
+                'ovation:xsg_importer:setIDMismatch');
             
         end
         
@@ -90,19 +100,23 @@ classdef TestAppendXSG < TestBase
             % present on the Epoch, they must match the values in
             % xsg.header.xsg.xsg]
             
-            self.epoch.addProperty('xsg_sequence_number',...
+            self.epoch.addProperty('xsg_acquisition_number',...
                 int64(str2double(self.xsg.header.xsg.xsg.acquisitionNumber)) + 1);
             
             self.checkThrows(self.epoch,...
-                'ovation:importer:xsg:traceLengthMismatch');
+                'ovation:xsg_importer:acquisitionNumberMismatch');
             
         end
         
-        function checkThrows(self, epoch, exceptionID)
+        function checkThrows(self, epoch, exceptionID, xsg)
             caughtException = false;
             try
+                if(nargin < 4)
+                    xsg = self.xsg;
+                end
+                
                 appendXSG(epoch,...
-                    self.xsg,...
+                    xsg,...
                     self.epoch.getStartTime().getZone().getID());
             catch ex
                 if (strcmp(ex.identifier,exceptionID))
@@ -116,9 +130,20 @@ classdef TestAppendXSG < TestBase
         end
             
         
-        %% Protocol
+        %% Protocol parameters
         
-        % loopGui params
+        function testShouldAddLoopGUIParamsToProtocolParameters(self)
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
+            paramNames = fieldnames(self.xsg.header.loopGui.loopGui);
+            for i = 1:length(paramNames)
+                paramName = paramNames{i};
+                assert(self.xsg.header.loopGui.loopGui.(paramName) == ...
+                    self.epoch.getProtocolParameter(paramName));
+            end
+        end
         
         %% Stimulator
         function testShouldSetEphusDeviceChannelForStimulatorStimuli(self)
@@ -127,7 +152,49 @@ classdef TestAppendXSG < TestBase
         
         function testShouldCreateStimulusForEachStimulatorChannel(self)
             %Pulse as stimulus parameters
-            %assert(false)
+            
+            import ovation.*
+            
+            stim = self.xsg.header.stimulator.stimulator;
+            for i = 1:length(stim.channels)
+                channelName = stim.channels(i).channelName;
+                stimulus = self.epoch.getStimulus(channelName);
+                
+                % Check device parameters
+                devParams = map2struct(stimulus.getDeviceParameters());
+                if(~isempty(stim.channels(i).boardID))
+                    assert(devParams.boardID == stim.channels(i).boardID);
+                end
+                if(~isempty(stim.channels(i).channelID))
+                    assert(devParams.channelID == stim.channels(i).channelID);
+                end
+                if(~isempty(stim.channels(i).portID))
+                    assert(devParams.portID == stim.channels(i).portID);
+                end
+                if(~isempty(stim.channels(i).channelID))
+                    assert(devParams.lineID == stim.channels(i).lineID);
+                end
+                
+                assert(devParams.externalTrigger == stim.externalTrigger);
+                assert(devParams.selfTrigger == stim.selfTrigger);
+                assert(devParams.stimOn == stim.stimOnArray(i));
+                assert(devParams.extraGain == stim.extraGainArray(i));
+                
+                % Check stimulus parameters
+                stimParams = stim.pulseParameters{i};
+                stimParams.pulseSet = stim.pulseSetNameArray{i};
+                stimParams.pulseName = stim.pulseNameArray{i};
+                
+                stimParamNames = fieldnames(stimParams);
+                for k = 1:length(stimParamNames)
+                    paramName = stimParamNames{k};
+                    assert(stimulus.getStimulusParameter(paramName).equals(stimParams.(paramName)));
+                end
+                
+                % Check sampleRate
+                assert(strcmp(char(stimulus.getSampleRateUnits()), 'Hz'))
+                assert(stim.sampleRate == stimulus.getSampleRate());
+            end
         end
         
         
