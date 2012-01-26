@@ -201,10 +201,6 @@ classdef TestAppendXSG < TestBase
                     param = stimulus.getStimulusParameter(paramName);
                     assert(~isempty(param));
                 end
-                
-                % Check sampleRate
-                assert(strcmp(char(stimulus.getSampleRateUnits()), 'Hz'))
-                assert(stim.sampleRate == stimulus.getSampleRate());
             end
         end
         
