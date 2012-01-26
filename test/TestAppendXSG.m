@@ -155,6 +155,10 @@ classdef TestAppendXSG < TestBase
             
             import ovation.*
             
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
             stim = self.xsg.header.stimulator.stimulator;
             for i = 1:length(stim.channels)
                 channelName = stim.channels(i).channelName;
