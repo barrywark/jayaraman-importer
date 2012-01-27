@@ -6,14 +6,195 @@ function epoch = appendXSG(epoch,...
     
     if(~strcmp(xsg.header.xsg.xsg.xsgFileFormatVersion,'1.2.0'))
         error('ovation:xsg_importer:fileVersion',...
-        ['XSG file format version ' ...
-        xsg.header.xsg.xsg.xsgFileFormatVersion ...
-        ' is not supported.']);
+            ['XSG file format version ' ...
+            xsg.header.xsg.xsg.xsgFileFormatVersion ...
+            ' is not supported.']);
     end
     
-    %% Find trigger time and trace length, making sure values are consistent
-    
+    % Find trigger time and trace length, making sure values are consistent
+    % with the Epoch to which we're appending
     maxDifference = 0.5; %seconds
+    checkTimelineBoundaries(epoch, xsg, timezone, maxDifference);
+    
+    % Check Experiment, Set and Acquisition numbers. Raises an exception if the
+    % Epoch to which we're appending doesn't match the Experiment, Set and
+    % Acquisition values in the XSG struct.
+    checkEpochMatchesXSG(epoch, xsg);
+    
+    
+    % Append protocol parameters
+    paramNames = fieldnames(xsg.header.loopGui.loopGui);
+    for i = 1:length(paramNames)
+        paramName = paramNames{i};
+        epoch.addProtocolParameter(paramName,...
+            xsg.header.loopGui.loopGui.(paramName));
+    end
+    
+    
+    % Create Stimuli for stimulator channels
+    appendStimuli(epoch, xsg);
+    
+    
+    % Create Responses for acquirer channels
+    appendResponses(epoch,xsg);
+    
+    % Create stimulus/response for Ephys
+    % TODO allow skip ephys
+    appendEphys(epoch, xsg);
+end
+
+function appendEphys(epoch, xsg)
+   % Assumes stim + response for each amplifier 
+   
+   import ovation.*;
+   
+   ephys = xsg.header.ephys.ephys;
+   ampNames = fieldnames(ephys.amplifierSettings);
+   
+   
+   for i = 1:length(ampNames)
+       ampName = ampNames{i};
+       dev = epoch.getEpochGroup().getExperiment().externalDevice(...
+           ampName,...
+           ephys.amplifierSettings.(ampName).ampState.uHardwareType); %TODO should we have the real manufacturer?
+       
+       
+       % Stimulus
+       pluginID = 'org.janelia.hhmi.jayaraman.ephus';
+       
+       units = ephys.amplifierSettings.(ampName).output_units;
+       dimensionLabels = [ephys.amplifierSettings.(ampName).mode ' stimulus'];
+       
+       devParams.externalTrigger = ephys.externalTrigger == 1; %boolean
+       devParams.selfTrigger = ephys.selfTrigger == 1; % boolean
+       devParams.stimOn = ephys.stimOnArray(i); %TODO: boolean?
+       devParams.sampleRate = ephys.sampleRate;
+       devParams.sampleRateUnits = 'Hz';
+       devParams.(ampName) = ephys.amplifierSettings(i).(ampName);
+
+       
+       stimParams.pulseSetName = ephys.pulseSetNameArray{i};
+       stimParams.pulseName = ephys.pulseNameArray{i};
+       stimParams.pulseNumber = ephys.pulseNumber;
+       stimParams.pulseParameters = ephys.pulseParameters{i};
+       
+       epoch.insertStimulus(dev,...
+           ovation.struct2map(devParams),...
+           pluginID,...
+           ovation.struct2map(stimParams),...
+           units,...
+           dimensionLabels);
+       
+       
+       % Response
+       
+       units = ephys.amplifierSettings.(ampName).input_units;
+       dimensionLabel = [ephys.amplifierSettings.(ampName).mode ' response'];
+       
+       data = NumericData(xsg.data.ephys.(['trace_' num2str(i)]));
+       
+       samplingRate = ephys.sampleRate;
+       samplingRateUnits = 'Hz';
+       
+       epoch.insertResponse(dev,...
+           ovation.struct2map(devParams),...
+           data,...
+           units,...
+           dimensionLabel,...
+           samplingRate,...
+           samplingRateUnits,...
+           Response.NUMERIC_DATA_UTI);
+   end
+end
+
+function appendResponses(epoch, xsg)
+    import ovation.*;
+    
+    resp = xsg.header.acquirer.acquirer;
+    
+   for i = 1:length(resp.channels)
+       dev = epoch.getEpochGroup().getExperiment().externalDevice(...
+           resp.channels(i).channelName,...
+           'Ephus');
+        
+       devParams.boardID = resp.channels(i).boardID;
+       devParams.channelID = resp.channels(i).channelID;
+       
+       samplingRate = resp.sampleRate;
+       samplingRateUnits = 'Hz';
+       
+       units = 'V';
+       
+       assert(strcmp(xsg.data.acquirer.(['channelName_' num2str(i)]),...
+           resp.channels(i).channelName));
+       
+       data = NumericData(xsg.data.acquirer.(['trace_' num2str(i)]));
+       
+       epoch.insertResponse(dev,...
+           struct2map(devParams),...
+           data,...
+           units,...
+           'Volts',...
+           samplingRate,...
+           samplingRateUnits,...
+           Response.NUMERIC_DATA_UTI);
+   end
+end
+
+function appendStimuli(epoch, xsg)
+    import ovation.*;
+    
+    stim = xsg.header.stimulator.stimulator;
+    for i = 1:length(stim.channels)
+        dev = epoch.getEpochGroup().getExperiment().externalDevice(...
+            stim.channels(i).channelName,...
+            'Ephus');
+        
+        if(~isempty(stim.channels(i).boardID))
+            devParams.boardID = stim.channels(i).boardID;
+        end
+        if(~isempty(stim.channels(i).channelID))
+            devParams.channelID = stim.channels(i).channelID;
+        end
+        if(~isempty(stim.channels(i).portID))
+            devParams.portID = stim.channels(i).portID;
+        end
+        if(~isempty(stim.channels(i).channelID))
+            devParams.lineID = stim.channels(i).lineID;
+        end
+        devParams.externalTrigger = stim.externalTrigger == 1; %boolean
+        devParams.selfTrigger = stim.selfTrigger == 1; % boolean
+        devParams.stimOn = stim.stimOnArray(i); %TODO: boolean?
+        devParams.extraGain = stim.extraGainArray(i);
+        devParams.sampleRate = stim.sampleRate;
+        devParams.sampleRateUnits = 'Hz';
+        
+        pluginID = 'org.janelia.hhmi.jayaraman.ephus';
+        
+        stimParams = stim.pulseParameters{i};
+        stimParams.pulseSet = stim.pulseSetNameArray{i};
+        stimParams.pulseName = stim.pulseNameArray{i};
+        
+        units = 'V';
+        
+        dimensionLabels = [];
+        
+        epoch.insertStimulus(dev,...
+            ovation.struct2map(devParams),...
+            pluginID,...
+            ovation.struct2map(stimParams),...
+            units,...
+            dimensionLabels);
+    end
+end
+
+function [triggerTime, traceLength] = checkTimelineBoundaries(epoch,...
+        xsg,...
+        timezone,...
+        maxDifference)
+    
+    import ovation.*;
+    
     if(isfield(xsg.header, 'acquirer'))
         triggerTime = xsg.header.acquirer.acquirer.triggerTime;
         traceLength = xsg.header.acquirer.acquirer.traceLength;
@@ -82,8 +263,11 @@ function epoch = appendXSG(epoch,...
     else
         error('ovation:xsg_importer:missingRequiredValue', 'XSG file does not contain ephys, stimulator, or acquirer data.');
     end
-    
-    %% Check Experiment, Set and Sequence values
+end
+
+
+function checkEpochMatchesXSG(epoch, xsg)
+    import ovation.*;
     
     experimentNumbers = epoch.getProperty('xsg_experiment_number');
     if(~isempty(experimentNumbers))
@@ -96,7 +280,7 @@ function epoch = appendXSG(epoch,...
         
         if(int64(str2double(xsg.header.xsg.xsg.experimentNumber)) ~= experimentNumber)
             error('ovation:xsg_importer:experimentNumberMismatch',...
-            'xsg_experiment_number value on this Epoch does not match the experimentNumber in xsg header.');
+                'xsg_experiment_number value on this Epoch does not match the experimentNumber in xsg header.');
         end
     end
     
@@ -110,10 +294,10 @@ function epoch = appendXSG(epoch,...
         setID = setIDs(1);
         if(~strcmp(char(setID), xsg.header.xsg.xsg.setID))
             error('ovation:xsg_importer:setIDMismatch',...
-            'xsg_setID value on this Epoch does not match the setID in xsg header.');
+                'xsg_setID value on this Epoch does not match the setID in xsg header.');
         end
     end
-        
+    
     acquisitionNumbers = epoch.getProperty('xsg_acquisition_number');
     if(~isempty(acquisitionNumbers))
         if(length(acquisitionNumbers) > 1)
@@ -125,58 +309,7 @@ function epoch = appendXSG(epoch,...
         
         if(int64(str2double(xsg.header.xsg.xsg.acquisitionNumber)) ~= acquisitionNumber)
             error('ovation:xsg_importer:acquisitionNumberMismatch',...
-            'xsg_acquisition_number value on this Epoch does not match the acquisitionNumber in xsg header.');
+                'xsg_acquisition_number value on this Epoch does not match the acquisitionNumber in xsg header.');
         end
-    end
-    
-    %% Append protocol parameters
-    paramNames = fieldnames(xsg.header.loopGui.loopGui);
-    for i = 1:length(paramNames)
-        paramName = paramNames{i};
-        epoch.addProtocolParameter(paramName,...
-            xsg.header.loopGui.loopGui.(paramName));
-    end
-    
-    
-    %% Create Stimuli for stimulator channels
-    stim = xsg.header.stimulator.stimulator;
-    for i = 1:length(stim.channels)
-        dev = epoch.getEpochGroup().getExperiment().externalDevice(...
-            stim.channels(i).channelName,...
-            'Ephus');
-        
-        if(~isempty(stim.channels(i).boardID))
-            devParams.boardID = stim.channels(i).boardID;
-        end
-        if(~isempty(stim.channels(i).channelID))
-            devParams.channelID = stim.channels(i).channelID;
-        end
-        if(~isempty(stim.channels(i).portID))
-            devParams.portID = stim.channels(i).portID;
-        end
-        if(~isempty(stim.channels(i).channelID))
-            devParams.lineID = stim.channels(i).lineID;
-        end
-        devParams.externalTrigger = stim.externalTrigger == 1; %boolean
-        devParams.selfTrigger = stim.selfTrigger == 1; % boolean
-        devParams.stimOn = stim.stimOnArray(i); %TODO: boolean?
-        devParams.extraGain = stim.extraGainArray(i);
-        
-        pluginID = 'org.janelia.hhmi.jayaraman.ephus';
-        
-        stimParams = stim.pulseParameters{i};
-        stimParams.pulseSet = stim.pulseSetNameArray{i};
-        stimParams.pulseName = stim.pulseNameArray{i};
-        
-        units = 'V';
-        
-        dimensionLabels = [];
-        
-        epoch.insertStimulus(dev,...
-            ovation.struct2map(devParams),...
-            pluginID,...
-            ovation.struct2map(stimParams),...
-            units,...
-            dimensionLabels);
     end
 end

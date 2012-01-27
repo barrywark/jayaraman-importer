@@ -35,12 +35,12 @@ classdef TestAppendXSG < TestBase
         end
         
         function testShouldRequireFileFormatVersion(self)
-           xsgMod = self.xsg;
-           xsgMod.header.xsg.xsg.xsgFileFormatVersion = '1.3.0';
-           
-           self.checkThrows(self.epoch,...
-               'ovation:xsg_importer:fileVersion',...
-               xsgMod);
+            xsgMod = self.xsg;
+            xsgMod.header.xsg.xsg.xsgFileFormatVersion = '1.3.0';
+            
+            self.checkThrows(self.epoch,...
+                'ovation:xsg_importer:fileVersion',...
+                xsgMod);
         end
         
         function testShouldRaiseExceptionIfTriggerTimeMismatch(self)
@@ -66,7 +66,7 @@ classdef TestAppendXSG < TestBase
             
             self.checkThrows(badEpoch,...
                 'ovation:xsg_importer:traceLengthMismatch');
-      
+            
         end
         
         function testShouldRaiseExceptionIfExperimentMismatch(self)
@@ -128,7 +128,7 @@ classdef TestAppendXSG < TestBase
             
             assert(caughtException);
         end
-            
+        
         
         %% Protocol parameters
         
@@ -147,11 +147,22 @@ classdef TestAppendXSG < TestBase
         
         %% Stimulator
         function testShouldSetEphusDeviceChannelForStimulatorStimuli(self)
-            %assert(false);
+            import ovation.*
+            
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
+            stim = self.xsg.header.stimulator.stimulator;
+            for i = 1:length(stim.channels)
+                channelName = stim.channels(i).channelName;
+                stimulus = self.epoch.getStimulus(channelName);
+                
+                assert(~isempty(stimulus));
+            end
         end
         
         function testShouldCreateStimulusForEachStimulatorChannel(self)
-            %Pulse as stimulus parameters
             
             import ovation.*
             
@@ -208,47 +219,238 @@ classdef TestAppendXSG < TestBase
         
         
         %% Acquirer
-        function testShouldSetEphusDeviceChannelForAcquirerResposnes(self)
+        function testShouldSetEphusDeviceChannelParametersForAcquirerResposnes(self)
+            import ovation.*
             
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
+            resp = self.xsg.header.acquirer.acquirer;
+            for i = 1:length(resp.channels)
+                channelName = resp.channels(i).channelName;
+                response = self.epoch.getResponse(channelName);
+                
+                assert(~isempty(response));
+                
+                params = response.getDeviceParameters();
+                
+                assert(params.get('boardID') == resp.channels(i).boardID);
+                assert(params.get('channelID') == resp.channels(i).channelID);
+            end
         end
         
-        function testShouldCreateResponseForEachAcquirerChannel(self)
+        function testShouldCreateResponseWithTraceForEachAcquirerChannel(self)
+            import ovation.*
             
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
+            resp = self.xsg.header.acquirer.acquirer;
+            for i = 1:length(resp.channels)
+                channelName = resp.channels(i).channelName;
+                response = self.epoch.getResponse(channelName);
+                
+                assert(~isempty(response));
+                
+                assert(all([resp.sampleRate] == response.getSamplingRates()));
+                assert(strcmp('Hz', char(response.getSamplingUnits())));
+                
+                data = response.getFloatingPointData();
+                
+                traceName = ['trace_' num2str(i)];
+                assert(all(data == self.xsg.data.acquirer.(traceName)));
+                
+                assert(Response.NUMERIC_DATA_UTI.equals(response.getUTI()));
+            end
         end
         
         
         
         %% EPHYS
         
-        function testShouldSupportOneAmplifier(~)
-            % We support one amplifer. Two-amp support is not been tested
-            assert(true);
+        %                       version: 0.3000
+        %           startButton: 1
+        %            sampleRate: 10000
+        %           selfTrigger: 0
+        %       externalTrigger: 1
+        %           stimOnArray: 1
+        %            acqOnArray: 1
+        %     pulseSetNameArray: {'Current pulse'}
+        %        pulseNameArray: {'50pA_2'}
+        %                 epoch: 1
+        %           traceLength: 42.4400
+        %             pulseFile: ''
+        %           pulseSetDir: 'C:\DATA\CONFIG\EPHUS\Eugenia\Pulse Sets'
+        %           pulseNumber: '2'
+        %     amplifierSettings: [1x1 struct]
+        %       pulseParameters: {[1x1 struct]}
+        %           triggerTime: [2009 12 10 18 59 0.9680]
+        function testShouldCreateStimulusForEphys(self)
+            import ovation.*
+            
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
+            ephys = self.xsg.header.ephys.ephys;
+            ampNames = fieldnames(ephys.amplifierSettings);
+            
+            for i = 1:length(ampNames)
+                stim = self.epoch.getStimulus(ampNames{i});
+                assert(~isempty(stim));
+            end
         end
         
-        function testShouldCreateStimulusForEphysIfSpecified(self)
+        function testShouldSetStimulusParametersForEphys(self)
+            import ovation.*
             
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
+            ephys = self.xsg.header.ephys.ephys;
+            ampNames = fieldnames(ephys.amplifierSettings);
+            
+            for i = 1:length(ampNames)
+                stim = self.epoch.getStimulus(ampNames{i});
+                assert(~isempty(stim));
+                
+                params = map2struct(stim.getStimulusParameters());
+                
+                assert(strcmp(ephys.pulseSetNameArray{i}, char(params.pulseSetName)));
+                assert(strcmp(ephys.pulseNameArray{i}, char(params.pulseName)));
+                
+                assert(ephys.pulseNumber == params.pulseNumber);
+                
+                paramNames = fieldnames(ephys.pulseParameters{i});
+                for j = 1:length(paramNames)
+                    paramName = paramNames{j};
+                    value = ephys.pulseParameters{i}.(paramName);
+                    if(ischar(value))
+                        assert(strcmp(value, params.(['pulseParameters__' paramName])));
+                    elseif(numel(value) > 1)
+                        assert(all(value == params.(['pulseParameters__' paramName]).getFloatingPointData()'));
+                    else
+                        assert(all(value == params.(['pulseParameters__' paramName])));
+                    end
+                end
+            end
         end
         
-        function testShouldCreateResponseForEphysIfSpecified(self)
+        function testShouldSetDeviceParmaetersForEphysStimulus(self)
+            import ovation.*
             
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
+            ephys = self.xsg.header.ephys.ephys;
+            ampNames = fieldnames(ephys.amplifierSettings);
+            
+            for i = 1:length(ampNames)
+                ampName = ampNames{i};
+                
+                stim = self.epoch.getStimulus(ampName);
+                assert(~isempty(stim));
+                
+                params = map2struct(stim.getDeviceParameters());
+                
+                assert(params.externalTrigger == ephys.externalTrigger == 1);
+                assert(params.selfTrigger == ephys.selfTrigger == 1);
+                assert(params.stimOn == ephys.stimOnArray(i));
+                assert(params.sampleRate == ephys.sampleRate);
+                assert(strcmp(params.sampleRateUnits, 'Hz'));
+                
+                ampSettingsNames = fieldnames(ephys.amplifierSettings(i).(ampName));
+                for j = 1:length(ampSettingsNames)
+                    ampSettingName = ampSettingsNames{j};
+                    value = ephys.amplifierSettings(i).(ampName).(ampSettingName);
+                    
+                    if(ischar(value))
+                        assert(strcmp(value, params.([ampName '__' ampSettingName])));
+                    elseif(numel(value) > 1)
+                        assert(all(value == params.([ampName '__' ampSettingName]).getFloatingPointData()));
+                    elseif(isstruct(value))
+                        %skip
+                    else
+                        assert(all(value == params.([ampName '__' ampSettingName])));
+                    end
+                end
+            end
+        end
+        
+        function testShouldCreateResponseForEphys(self)
+            import ovation.*
+            
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
+            ephys = self.xsg.header.ephys.ephys;
+            ampNames = fieldnames(ephys.amplifierSettings);
+            
+            for i = 1:length(ampNames)
+                response = self.epoch.getResponse(ampNames{i});
+                assert(~isempty(response));
+                
+                assert(all(self.xsg.data.ephys.(['trace_' num2str(i)]) == ...
+                    response.getFloatingPointData()));
+                
+                srates = response.getSamplingRates();
+                srateUnits = response.getSamplingUnits();
+                assert(srates(1) == ephys.sampleRate);
+                assert(srateUnits{1} == 'Hz');
+                assert(strcmp(char(response.getUnits()),...
+                    ephys.amplifierSettings.(ampNames{i}).input_units));
+                
+            end
         end
         
         
         function testShouldSetAmplifierDeviceForEphysResponses(self)
+            import ovation.*
             
+            appendXSG(self.epoch,...
+                self.xsg,...
+                self.epoch.getStartTime().getZone().getID());
+            
+            ephys = self.xsg.header.ephys.ephys;
+            ampNames = fieldnames(ephys.amplifierSettings);
+            
+            for i = 1:length(ampNames)
+                ampName = ampNames{i};
+                
+                response = self.epoch.getResponse(ampName);
+                assert(~isempty(response));
+                
+                params = map2struct(response.getDeviceParameters());
+                
+                assert(params.externalTrigger == ephys.externalTrigger == 1);
+                assert(params.selfTrigger == ephys.selfTrigger == 1);
+                assert(params.stimOn == ephys.stimOnArray(i));
+                assert(params.sampleRate == ephys.sampleRate);
+                assert(strcmp(params.sampleRateUnits, 'Hz'));
+                
+                ampSettingsNames = fieldnames(ephys.amplifierSettings(i).(ampName));
+                for j = 1:length(ampSettingsNames)
+                    ampSettingName = ampSettingsNames{j};
+                    value = ephys.amplifierSettings(i).(ampName).(ampSettingName);
+                    
+                    if(ischar(value))
+                        assert(strcmp(value, params.([ampName '__' ampSettingName])));
+                    elseif(numel(value) > 1)
+                        assert(all(value == params.([ampName '__' ampSettingName]).getFloatingPointData()'));
+                    elseif(isstruct(value))
+                        %pass
+                    else
+                        assert(all(value == params.([ampName '__' ampSettingName])));
+                    end
+                end
+            end
         end
         
-        function testShouldSetAmplifierDeviceForEphysStimuli(self)
-            
-        end
-        
-        function testShouldIncludeAmplifierConfigurationIfSpecified(self)
-            % xsg.header.ephys.ephys.amplifierSettings contains amplifier
-            % settings. The user must tell appendXSG whether to use the
-            % amplifier settings (by specifying the appropriate channel
-            % names).
-            
-        end
         
     end
 end
