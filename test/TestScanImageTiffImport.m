@@ -1,4 +1,4 @@
-classdef TestTiffImport < TestBase
+classdef TestScanImageTiffImport < TestBase
 
     properties
         tifFile
@@ -7,7 +7,7 @@ classdef TestTiffImport < TestBase
     end
     
     methods
-        function self = TestTiffImport(name)
+        function self = TestScanImageTiffImport(name)
             self = self@TestBase(name);
             
             import ovation.*;
@@ -50,7 +50,7 @@ classdef TestTiffImport < TestBase
                 epoch = epochs(1);
             end
             self.tifFile
-            AppendTifData(epoch, self.tifFile);
+            appendScanImageTiff(epoch, self.tifFile);
         end
         
         %%Tests
