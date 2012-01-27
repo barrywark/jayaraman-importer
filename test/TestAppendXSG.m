@@ -399,9 +399,8 @@ classdef TestAppendXSG < TestBase
                     response.getFloatingPointData()));
                 
                 srates = response.getSamplingRates();
-                srateUnits = response.getSamplingUnits();
                 assert(srates(1) == ephys.sampleRate);
-                assert(srateUnits{1} == 'Hz');
+                assert(response.getSamplingUnits() == 'Hz');
                 assert(strcmp(char(response.getUnits()),...
                     ephys.amplifierSettings.(ampNames{i}).input_units));
                 
