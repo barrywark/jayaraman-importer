@@ -33,14 +33,14 @@ function epoch = appendScanImageTiff(epoch,...
     
     pmt_parameters = struct();
     acq_names = fieldnames(tif_struct.acq);
-    disp(acq_names);
+    %disp(acq_names);
     for i=1:length(acq_names)
         name = acq_names(i);
-        disp(name);
+        %disp(name);
         name = name{1};
-        disp(name);
+        %disp(name);
         if name(end) == '1' 
-            disp('here')
+            %disp('here')
             pmt_parameters.pmt1.(name) = tif_struct.acq.(name);
         elseif name(end) == '2'
             pmt_parameters.pmt2.(name) = tif_struct.acq.(name);
@@ -52,7 +52,7 @@ function epoch = appendScanImageTiff(epoch,...
             device_params.(name) = tif_struct.acq.(name);
         end  
     end
-    disp(pmt_parameters);
+    %disp(pmt_parameters);
     
     
     if tif_struct.acq.savingChannel1
@@ -78,6 +78,9 @@ function epoch = appendScanImageTiff(epoch,...
 
     % empty response with url pointing to response
     function addResponse(deviceName, manufacturer, pmt_params, epoch, tif_struct)
+        
+        import ovation.*;
+        
         pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, manufacturer);
         units = 'volts'; %?
         
@@ -93,7 +96,7 @@ function epoch = appendScanImageTiff(epoch,...
         [YSamplingRate, YSamplingUnit, YLabel] = getYResolution(tif_struct);
         dimensionLabels = [XLabel, YLabel, frameDimensionLabel];
         samplingRate = [XSamplingRate, YSamplingRate, frameSamplingRate];
-        samplingRateUnits = [XSamplingUnit, YSamplingUnit, frameSamplingUnit];
+        samplingRateUnits = {XSamplingUnit, YSamplingUnit, frameSamplingUnit};
         r = epoch.insertResponse(pmt,...
             struct2map(pmt_params),...
             NumericData([0, 0, 0]),...
@@ -105,7 +108,9 @@ function epoch = appendScanImageTiff(epoch,...
         dataRetrievalFunction = 'scm_openTif';
         %r.addProperty('__ovation_url', relativeUrlToFile);
         r.addProperty('__ovation_retrieval_funcion', dataRetrievalFunction);
-        r.addProperty('__ovation_retrieval_parameters', {tifFile, deviceName(end)}); % by chanel number? 
+        disp(tifFile);
+        r.addProperty('__ovation_retrieval_parameters1', tifFile);
+        r.addProperty('__ovation_retrieval_parameters2', deviceName(end)); % by chanel number? 
         %TODO: r.addProperty('filterColor', filterColor); %read filter color from text file
     end
 
