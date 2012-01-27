@@ -400,7 +400,7 @@ classdef TestAppendXSG < TestBase
                 
                 srates = response.getSamplingRates();
                 assert(srates(1) == ephys.sampleRate);
-                assert(response.getSamplingUnits() == 'Hz');
+                assert(strcmp(response.getSamplingUnits(), 'Hz'));
                 assert(strcmp(char(response.getUnits()),...
                     ephys.amplifierSettings.(ampNames{i}).input_units));
                 
