@@ -58,9 +58,9 @@ To run the automated test suite:
 #. Add the ``jayaraman-importer/src`` folder to the Matlab path
 #. Add the ``yamlmatlab`` folder to the Matlab path
 #. Add Matlab xUnit (``jayaraman-importer/matlab-xunit-doctest/xunit``) to the Matlab path
-#. From within the ``jayaraman-importer/test`` directory::
+#. From within the ``jayaraman-importer/`` directory::
     
-    >> runtestsuite
+    >> runtestsuite test
     
 
 

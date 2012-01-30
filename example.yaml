@@ -1,7 +1,7 @@
 --- 
 PMT:
-    pmt1: red
-    pmt2: green
+    pmt1: name1 #e.g. "green"
+    pmt2: name2 #e.g. "red"
 
 SEQ:
     filename:
@@ -21,7 +21,7 @@ XSG:
         - channelName1
         - channelName2 #are more two amplifiers allowed?
 
-LEDArena:
+LEDArena: # This section's specification is still in flux
     configuration: configurationName
     SD:
         patternFiles:
