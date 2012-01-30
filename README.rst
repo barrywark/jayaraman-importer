@@ -3,7 +3,13 @@ Jayaraman lab's importer code for Ovation
 =========================================
 
 
-This project contains Matlab[1]_ code for importing data for Vivek Jayaraman's lab into the `Ovation Scientific Data Management System <http://physionconsulting.com/web/Ovation.html>`.
+This project contains Matlab [#]_ code for importing data for Vivek Jayaraman's lab into the `Ovation Scientific Data Management System <http://physionconsulting.com/web/Ovation.html>`.
+
+The importer is modularized into individual Matlab functions that import components of the Jayaraman data:
+
+- ``insertXSGEpoch`` and ``appendXSG`` which insert a new ovation.Epoch for an XSG file or append an XSG file to an existing ``ovation.Epoch`` respectively
+- ``appendScanImageTiff`` which appends a ScanImage TIFF's data to an existing ``ovation.Epoch``
+- ``appendSeq`` which appends a .seq data file to an existing ``ovation.Epoch``
 
 Basic Usage
 -----------
@@ -35,6 +41,6 @@ To run the automated test suite:
 
 
 
-.. [1] Matlab is a registered trademark of The Mathworks, Inc..
+.. [#] Matlab is a registered trademark of The Mathworks, Inc..
 
 
