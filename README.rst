@@ -28,10 +28,10 @@ To use the importer:
     >> context = NewDataContext(<path_to_connection_file>, <username>);
     >> project = context.insertProject(<project name>, <project purpose>, <project start date>);
     >> experiment = project.insertExperiment(<expt purpose>, <expt start date>);
-#. Insert an ``EpochGroup``::
+#. Insert an ``EpochGroup``, replacing ``<label>`` with the desired ``EpochGroup`` label and the arguments to ``datetime`` with the start time and date of the ``EpochGroup`` (see ``help ovation.datetime``)::
 
     >> epochGroup = experiment.insertEpochGroup(<label>, datetime(...));
-where ``<label>`` is replaced with the desired ``EpochGroup`` label and the arguments to ``datetime`` give the start time and date of the ``EpochGroup`` (see ``help ovation.datetime``).
+    
 #. Insert an Epoch::
 
     >> epoch = insertXSGEpoch(epochGroup,...
