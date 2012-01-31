@@ -97,20 +97,20 @@ classdef TestSeqImport < TestBase
             assert(self.epoch ~= []);
         end
         
-        function testDeviceParameters(self)
-            responseNames = self.epoch.getResponseNames();
-            for j=1:length(responseNames)
-                r = self.epoch.getResponse(responseNames(j));
-                device_params = ovation.map2struct(r.getDeviceParameters());
+        %function testDeviceParameters(self)
+        %    responseNames = self.epoch.getResponseNames();
+        %    for j=1:length(responseNames)
+        %        r = self.epoch.getResponse(responseNames(j));
+        %        device_params = ovation.map2struct(r.getDeviceParameters());
 
-            param_list = {};
-            for i=1:length(param_list)
-                name = param_list(i);
-                name = name{1};
-                device_params.(name); % will throw an exception if param in list doesn't exist
-            end
-            end
-        end
+%            param_list = {};
+%            for i=1:length(param_list)
+%                name = param_list(i);
+%                name = name{1};
+%                device_params.(name); % will throw an exception if param in list doesn't exist
+%            end
+%            end
+%        end
         
         function testSamplingRatesAndUnits(self)
             responseNames = self.epoch.getResponseNames();
