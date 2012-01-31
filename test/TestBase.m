@@ -15,7 +15,10 @@ classdef TestBase < TestCase
     methods
         function self = TestBase(name)
             self = self@TestCase(name);
-            
+            addpath ../externals;
+            addpath ../src;
+            addpath ../yamlmatlab;
+            addpath /opt/ovation;
             import ovation.*;
             
             % N.B. these values should match those in runtestsuite
