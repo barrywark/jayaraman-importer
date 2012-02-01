@@ -300,6 +300,9 @@ classdef TestAppendXSG < TestBase
             for i = 1:length(ampNames)
                 stim = self.epoch.getStimulus(ampNames{i});
                 assert(~isempty(stim));
+                
+                assert(strcmp(char(stim.getUnits()),...
+                    ephys.amplifierSettings.(ampNames{i}).output_units));
             end
         end
         
