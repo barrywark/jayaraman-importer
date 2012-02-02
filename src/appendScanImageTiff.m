@@ -12,12 +12,16 @@ function epoch = appendScanImageTiff(epoch,...
         
     import ovation.*;
     
-    %nargchk(4, 5, nargin); %#ok<NCHKI>
-    %if(nargin < 4)
-    %    ntrials = [];
-    %end
     
     tif_struct = scim_openTif(tifFile, 'header');   
+    
+    if(tif_struct.software.version ~= 3.6000)
+        error('ovation:scanimage_tiff_importer:fileVersion',...
+            ['ScanImage TIFF file format version ' ...
+            tif_struct.software.version ...
+            ' is not supported.']);
+    end
+    
     manufacturer = 'pmt_manufacturer'; % fix
     
     %% check that start and end times for the epoch overlap with the tif file
