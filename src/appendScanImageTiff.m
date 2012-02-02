@@ -21,8 +21,6 @@ function epoch = appendScanImageTiff(epoch,...
         
     import ovation.*;
     
-<<<<<<< HEAD
-    
     tif_struct = scim_openTif(tifFile, 'header');   
     
     if(tif_struct.software.version ~= 3.6000)
@@ -33,15 +31,12 @@ function epoch = appendScanImageTiff(epoch,...
     end
     
     manufacturer = 'pmt_manufacturer'; % fix
-=======
+
     error(nargchk(4, 5, nargin)); %#ok<NCHKI>
     if(nargin < 5)
         failForBadResponseTimes = false;
     end
 
-    tif_struct = scim_openTif(tifFile, 'header');   
-    manufacturer = 'pmt_manufacturer'; % TODO: fix
->>>>>>> upstream/master
     
     %% check that start and end times for the epoch overlap with the tif file
     duration = tif_struct.acq.numberOfFrames/tif_struct.acq.frameRate; %in seconds? NOTE: tif_struct.framesPerFile is bogus
@@ -52,7 +47,7 @@ function epoch = appendScanImageTiff(epoch,...
     triggerTimeEnd = triggerTimeStart.plusSeconds(duration);
     if epoch.getStartTime().isAfter(triggerTimeEnd) || epoch.getEndTime().isBefore(triggerTimeStart)
         if failForBadResponseTimes
-            err = MException('ResultChk:OutOfRange', ...
+            err = MException('ovation:scanimage_tiff_importer:timeMismatch', ...
         'Times recorded in scanImage file do not match times recorded in this epoch!');
             throw(err);
         else
