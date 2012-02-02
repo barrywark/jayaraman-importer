@@ -42,50 +42,11 @@ classdef TestSeqImport < TestBase
                 'org.hhmi.janelia.jayaraman.testImportMapping',...
                 []);
             
+            assert(~isempty(self.epoch));
+            
             appendSeq(self.epoch, self.seqFile, self.yaml);
         end
         
-        %%Tests - should test that the following fields are imported into
-        %ovation:
-        %   header.configName
-        %   header.acq.externallyTriggered
-        %   header.acq.averaging
-        %   header.acq.numberOfFrames
-        %   header.acq.linesPerFrame
-        %   header.acq.pixelsPerLine
-        %   header.acq.frameRate
-        %   header.acq.linescan
-        %   header.acq.zoomFactor
-        %   header.acq.scanAmplitudeX
-        %   header.acq.scanAmplitudeY
-        %   header.acq.scanRotation
-        %   header.acq.scaleXShift
-        %   header.acq.scaleYShift
-        %   header.acq.xstep
-        %   header.acq.ystep
-        %   header.acq.msPerLine
-        %   header.acq.pmtOffsetChannel(per channel)
-        %   header.acq.pmtOffsetStdDevChannel(per channel)
-        %   header.acq.fastScanningX
-        %   header.acq.fastScanningY
-        %   header.sofware.version
-        %   header.sofware.minorRev
-        %   header.sofware.beta
-        %   header.init.scanOffsetX
-        %   header.motor.absXPosition
-        %   header.motor.absYPosition
-        %   header.motor.absZPosition
-        %   header.motor.relXPosition
-        %   header.motor.relYPosition
-        %   header.motor.relYPosition
-        %   header.motor.relZPosition
-        %   header.motor.distance
-         
-
-        function testEpochShouldExist(self)
-            import ovation.*;
-            assert(self.epoch ~= []);
-        end
         
         %function testDeviceParameters(self)
         %    responseNames = self.epoch.getResponseNames();
@@ -107,10 +68,10 @@ classdef TestSeqImport < TestBase
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
                                 
-                samplingRates = [self.seq_struct.FrameRate, self.seq_struct.Width, self.seq_struct.Height];
-                samplingRateUnits = [java.lang.String('Hz'), java.lang.String('pixels'), java.lang.String('pixels')];
-                dimensionLabels = [java.lang.String('Width'), java.lang.String('Height')];
-                assert(strcmp(r.getUnits(), 'intensity'));
+                samplingRates = [self.seq_struct.FrameRate, 1, 1];
+                samplingRateUnits = [java.lang.String('Hz'), java.lang.String('pixel/pixel'), java.lang.String('pixel/pixel')];
+                dimensionLabels = [java.lang.String('frame'), java.lang.String('width'), java.lang.String('height')];
+                assert(strcmp(r.getUnits(), 'a.u.'));
                 
                 assert(isequal(r.getSamplingUnits(), samplingRateUnits));
                 assertElementsAlmostEqual(r.getSamplingRates(), samplingRates');
