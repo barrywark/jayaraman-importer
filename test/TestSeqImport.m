@@ -16,7 +16,7 @@ classdef TestSeqImport < TestBase
             import ovation.*;
             addpath /opt/ovation;
             
-            self.seqFile = '~/Downloads/092311cal7.seq';%%[pwd() '/fixtures/092311cal7.seq'];
+            self.seqFile = 'fixtures/092311cal7.seq';
             
             self.yaml = ReadYaml([pwd() '/../example.yaml']);            
             self.expModificationDate = org.joda.time.DateTime(java.io.File(self.seqFile).lastModified());
@@ -124,7 +124,7 @@ classdef TestSeqImport < TestBase
                 r = self.epoch.getResponse(responseNames(i));
                 
                 shape = [self.seq_struct.Height, self.seq_struct.Width];
-                assert(isequal(r.getShape(), shape));
+                assert(isequal(r.getShape()', shape));
             end
         end
         

@@ -58,7 +58,7 @@ classdef TestScanImageTiffImport < TestBase
             
             assert(~isempty(self.epoch));
             
-            appendScanImageTIFF(self.epoch, self.tifFile, 'example.yaml', 'America/New_York');
+            appendScanImageTiff(self.epoch, self.tifFile, 'example.yaml', 'America/New_York');
 
         end
         
@@ -188,7 +188,7 @@ classdef TestScanImageTiffImport < TestBase
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
                 
-                assert(isequal(r.getShape(), [self.tif_struct.acq.pixelsPerLine, self.tif_struct.acq.linesPerFrame, self.tif_struct.acq.numberOfZSlices]));
+                assert(isequal(r.getShape()', [self.tif_struct.acq.pixelsPerLine, self.tif_struct.acq.linesPerFrame, self.tif_struct.acq.numberOfZSlices]));
             end
         end
         
