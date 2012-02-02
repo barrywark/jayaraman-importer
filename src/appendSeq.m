@@ -1,32 +1,23 @@
 function epoch = appendSeq(epoch,...
                                seqFile,...
-                               yamlFile,... 
-                               timeZone,...
-                               failForBadResponseTimes)
+                               yamlFile)
                                       
     % Add Stimuli and Response information contained in a tif file, to a given Epoch. Return the updated Epoch. 
     %
-    %    epoch = AppendTifData(epoch, tifFile)
+    %    epoch = appendSeq(epoch, seqFile, yamlFile)
     %                                 
     %      epoch: ovation.Epoch object. The Epoch to attach the Response
     %      and Stimulus to. 
     %
-    %      tifFile: path to the scanImage generated .TIF file
+    %      seqFile: path to the generated .SEQ file
     %
     %      yamlFile: path to the user-defined yamlfile. This file contains
-    %      a mapping between pmt and coloredFilter (if there is one). It
-    %      also contains the distance (in microns) of the X and Y
-    %      dimensions of the image (unless its a linescan experiment, in
-    %      which case there is no Y distance)
+    %      a camera name and manufacturer for the camera used to generate
+    %      this seq file.
         
     import ovation.*;
-    
-    error(nargchk(4, 5, nargin)); %#ok<NCHKI>
-    if(nargin < 5)
-        failForBadResponseTimes = false;
-    end
-
-    [seq_struct, fid] = read_seq_header(seqFile); % what is fid?
+   
+    [seq_struct, fid] = read_seq_header(seqFile);
     %TODO: get camera number and deriation_parameters from yaml file?
     device = epoch.getEpochGroup().getExperiment().externalDevice('camera1', 'manufacturer');
     derivation_params = struct();

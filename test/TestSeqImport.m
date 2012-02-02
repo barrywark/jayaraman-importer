@@ -16,7 +16,7 @@ classdef TestSeqImport < TestBase
             import ovation.*;
             addpath /opt/ovation;
             
-            self.seqFile = '~/Downloads/092311cal7.seq';%%[pwd() '/fixtures/EC20091021_GC3_0_27B03_A1_L_022.tif'];
+            self.seqFile = '~/Downloads/092311cal7.seq';%%[pwd() '/fixtures/092311cal7.seq'];
             
             self.yaml = ReadYaml([pwd() '/../example.yaml']);            
             self.expModificationDate = org.joda.time.DateTime(java.io.File(self.seqFile).lastModified());
@@ -34,25 +34,15 @@ classdef TestSeqImport < TestBase
             experiment = experiments(1);
             sources = self.context.getSources();
             source = sources(1);
-           
-            %if isempty(experiment.getEpochGroups)
-                epochGroup = experiment.insertEpochGroup(source, 'test epoch group', self.expModificationDate, self.expModificationDate);
-            %else
-            %    epochGroups = experiment.getEpochGroups();
-            %    epochGroup = epochGroups(1);
-            %end
-            %if isempty(epochGroup.getEpochs())
-                self.epoch = epochGroup.insertEpoch(self.expModificationDate,...
-                    self.expModificationDate,...
-                    'org.hhmi.janelia.jayaraman.testImportMapping',...
-                    []);
-
-            %else
-            %    epochs = epochGroup.getEpochs();
-            %    self.epoch = epochs(1);
-            %end
+                       
+            epochGroup = experiment.insertEpochGroup(source, 'test epoch group', self.expModificationDate, self.expModificationDate);
             
-            appendSeq(self.epoch, self.seqFile, 'example.yaml', 'America/New_York');
+            self.epoch = epochGroup.insertEpoch(self.expModificationDate,...
+                self.expModificationDate,...
+                'org.hhmi.janelia.jayaraman.testImportMapping',...
+                []);
+            
+            appendSeq(self.epoch, self.seqFile, self.yaml);
         end
         
         %%Tests - should test that the following fields are imported into

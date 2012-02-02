@@ -40,7 +40,7 @@ classdef TestBase < TestCase
             self.experiment = itr.next();
             
             src = self.context.insertSource('test-batch');
-            self.epochGroup = self.experiment.insertEpochGroup(src, 'Session', datetime());
+            self.epochGroup = self.experiment.insertEpochGroup(src, 'Session', org.joda.time.DateTime());
             
         end
 
