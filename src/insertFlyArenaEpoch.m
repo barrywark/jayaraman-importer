@@ -9,20 +9,20 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
     
     % Add stimulus for arena
     
-    params = trial.stimulus.patternParameters;
-    if(isfield(trial.stimulus, 'frameNumber') && ...
-            ~isempty(trial.stimulus.frameNumber))
-        params.frameNumber = trial.stimulus.frameNumber;
+    params = trial.arena.patternParameters;
+    if(isfield(trial.arena, 'frameNumber') && ...
+            ~isempty(trial.arena.frameNumber))
+        params.frameNumber = trial.arena.frameNumber;
     end
     
-    %TODO--handle SD card mapping: params.patternSDIndex = trial.stimulus.SDcard;
+    %TODO--handle SD card mapping: params.patternSDIndex = trial.arena.SDcard;
     
     device = epochGroup.getExperiment().externalDevice('Fly Arena', '<manufacturer>'); %TODO
     
-    devParams.controllerMode = trial.stimulus.controllerMode;
-    devParams.controllerParameters = trial.stimulus.controllerParameters;
-    devParams.firmwareMode = trial.stimulus.firmwareVersion;
-    devParams.arenaConfiguration = trial.stimulus.arenaConfigurationName;
+    devParams.controllerMode = trial.arena.controllerMode;
+    devParams.controllerParameters = trial.arena.controllerParameters;
+    devParams.firmwareMode = trial.arena.firmwareVersion;
+    devParams.arenaConfiguration = trial.arena.arenaConfigurationName;
     
     units = 'intensity'; % What are the units of output?
     stimulus = epoch.insertStimulus(device,...
@@ -36,12 +36,12 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
     %% Add resources
     
     % TODO attach or referece (as URL)?
-    stimulus.addResource('??', trial.stimulus.patternFile);
-    stimulus.addResource(trial.stimulus.patternGenerationFunction);
+    stimulus.addResource('??', trial.arena.patternFile);
+    stimulus.addResource(trial.arena.patternGenerationFunction);
     
-    if(isfield(trial.stimulus, 'arenaConfigurationFile') && ...
-            ~isempty(trial.stimulus.arenaConfigurationFile))
-        stimulus.addResource(trial.stimulus.arenaConfigurationFile);
+    if(isfield(trial.arena, 'arenaConfigurationFile') && ...
+            ~isempty(trial.arena.arenaConfigurationFile))
+        stimulus.addResource(trial.arena.arenaConfigurationFile);
     else
         warning('ovation:fly_arena_import:missingConfiguration',...
             'Arena configuration .MAT is missing');
@@ -52,8 +52,8 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
     
     %% Links for XSG channels
     xsgInserted = false;
-    if(isfield(trial.stimulus, 'xsgXSequenceChannel') || ...
-            isfield(trial.stimulus, 'xsgYSequenceChannel'))
+    if(isfield(trial.arena, 'xsgXSequenceChannel') || ...
+            isfield(trial.arena, 'xsgYSequenceChannel'))
         
         xsg = load(trial.xsg.xsgFilePath, '-mat');
         appendXSG(epoch,...
@@ -61,14 +61,14 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
             epoch.getStartTime().getZone().getID());
         
         %TODO
-        if(isfield(trial.stimulus, 'xsgXSequenceChannel'))
+        if(isfield(trial.arena, 'xsgXSequenceChannel'))
             stimulus.addProperty('xsgXSequenceResponse',...
-                epoch.getResponse(trial.stimulus.xsgXSequenceChannel));
+                epoch.getResponse(trial.arena.xsgXSequenceChannel));
         end
         
-        if(isfield(trial.stimulus, 'xsgYSequenceChannel'))
+        if(isfield(trial.arena, 'xsgYSequenceChannel'))
             stimulus.addProperty('xsgYSequenceResponse',...
-                epoch.getResponse(trial.stimulus.xsgYSequenceChannel));
+                epoch.getResponse(trial.arena.xsgYSequenceChannel));
         end
         
         xsgInserted = true;

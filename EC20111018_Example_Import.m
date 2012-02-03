@@ -60,43 +60,43 @@ ec20111018.protocolParameters.finish_period = 1;
 %% Stimulus informatoin (pattern)
 
 % Pattern and generating .m file (added as Resources)
-ec20111018.stimulus.patternFile = 'test/fixtures/EC20111018/patterns/PatternNew_4WideStripesGlobalToSingle_CL_4.mat';
-ec20111018.stimulus.patternGenerationFunction = 'test/fixtures/EC20111018/patterns/Pattern_3_Wide_Starting_At_0.m';
+ec20111018.arena.patternFile = 'test/fixtures/EC20111018/patterns/PatternNew_4WideStripesGlobalToSingle_CL_4.mat';
+ec20111018.arena.patternGenerationFunction = 'test/fixtures/EC20111018/patterns/Pattern_3_Wide_Starting_At_0.m';
 
 % Pattern parameters => Stimulus.stimulusParameters.
 % E.g. taken from Pattern_3_Wide_Starting_At_0.m. Any parameters that you
 % want to be easily queriable should go here, even if they are duplicated
 % in the pattern .mat.
-ec20111018.stimulus.patternParameters.x_num = 56; 	% There are 96 pixel around the display (12x8) 
-ec20111018.stimulus.patternParameters.y_num = 1; 		% two frames of Y, at 2 different spatial frequencies
-ec20111018.stimulus.patternParameters.num_panels = 14; 	% This is the number of unique Panel IDs required.
-ec20111018.stimulus.patternParameters.gs_val = 3; 	% This pattern will use 8 intensity levels
-ec20111018.stimulus.patternParameters.row_compression = 1;
+ec20111018.arena.patternParameters.x_num = 56; 	% There are 96 pixel around the display (12x8) 
+ec20111018.arena.patternParameters.y_num = 1; 		% two frames of Y, at 2 different spatial frequencies
+ec20111018.arena.patternParameters.num_panels = 14; 	% This is the number of unique Panel IDs required.
+ec20111018.arena.patternParameters.gs_val = 3; 	% This pattern will use 8 intensity levels
+ec20111018.arena.patternParameters.row_compression = 1;
 
 % Mapping from SD card to Pattern. Stored as stimulusParameters
 % TODO: what are the types here?
-ec20111018.stimulus.SDcard = containers.Map('KeyType', 'int32', 'ValueType', 'char');
-ec20111018.stimulus.SDcard(int32(1)) = 'pattern ID1';
-ec20111018.stimulus.SDcard(int32(2)) = 'pattern ID1';
+ec20111018.arena.SDcard = containers.Map('KeyType', 'int32', 'ValueType', 'char');
+ec20111018.arena.SDcard(int32(1)) = 'pattern ID1';
+ec20111018.arena.SDcard(int32(2)) = 'pattern ID1';
 
 
 % Arena configuration file (added as Resource).
 % If this is a MAT file with a struct, we can add it as deviceParameters to
 % make this configuration searchable
-%ec20111018.stimulus.arenaConfigurationFile = '...';
-ec20111018.stimulus.arenaConfigurationName = '3-wide'; % => deviceParameter
+%ec20111018.arena.arenaConfigurationFile = '...';
+ec20111018.arena.arenaConfigurationName = '3-wide'; % => deviceParameter
 
 % The presented sequence (ec20111018.xsg.xsgFileName must be present)
-ec20111018.stimulus.xsgXSequenceChannel = 'XSignalArena'; % name of xsg channel
-ec20111018.stimulus.xsgYSequenceChannel = 'YSignalArena'; % name of xsg channel
+ec20111018.arena.xsgXSequenceChannel = 'XSignalArena'; % name of xsg channel
+ec20111018.arena.xsgYSequenceChannel = 'YSignalArena'; % name of xsg channel
 
 %(optional)
-ec20111018.stimulus.frameNumber = []; % Vector of frame numbers
+ec20111018.arena.frameNumber = []; % Vector of frame numbers
 
 % Device parameters
-ec20111018.stimulus.controllerMode = 1;
-ec20111018.stimulus.controllerParameters = struct(); %Struct of additional controller parameters
-ec20111018.stimulus.firmwareVersion = 1;
+ec20111018.arena.controllerMode = 1;
+ec20111018.arena.controllerParameters = struct(); %Struct of additional controller parameters
+ec20111018.arena.firmwareVersion = 1;
 
 
 %% Response data (non-Ephus)
