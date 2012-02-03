@@ -7,7 +7,7 @@ function runtestsuite(test_folder)
     % After running runtestsuite, you may run runtests (the Matlab xUnit test
     % runner) to re-run the test suite without building a new database or
     % re-importing the test fixture data.
-    
+        
     error(nargchk(0, 1, nargin)); %#ok<NCHKI>
     if(nargin < 1)
         test_folder = [pwd() '/'];

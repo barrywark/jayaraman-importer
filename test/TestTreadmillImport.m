@@ -5,8 +5,9 @@ classdef TestTreadmillImport < TestBase
         expModificationDate
         epoch
         yaml
-        shutterSpeed0
-        shutterSpeed1
+        frameRate1
+        frameRate2
+        responseLength
     end
     
     methods
@@ -22,8 +23,12 @@ classdef TestTreadmillImport < TestBase
             self.expModificationDate = org.joda.time.DateTime(java.io.File(self.treadmillFile).lastModified());
             
             [~,~,~,~,~,~,~,~,A,B,C,D] = textread(self.treadmillFile);
-            self.shutterSpeed0 = arrayfun(@(high, low) uint16(low) + high*(2^8), A, B);
-            self.shutterSpeed1 = arrayfun(@(high, low) uint16(low) + high*(2^8), C, D);
+            shutterSpeed1 = arrayfun(@(high, low) uint16(low) + high*(2^8), A, B);
+            shutterSpeed2 = arrayfun(@(high, low) uint16(low) + high*(2^8), C, D);
+            self.frameRate1 = median(shutterSpeed1);
+            self.frameRate2 = median(shutterSpeed2);
+            self.responseLength = length(shutterSpeed1);
+            addpath .
             
         end
         
@@ -70,33 +75,86 @@ classdef TestTreadmillImport < TestBase
             end
         end
         
-        function testSamplingRatesAndUnits(self)
-            responseNames = {'camera1', 'camera2'};
-            shutterRates = [uint16(median(self.shutterSpeed0)), uint16(median(self.shutterSpeed1))];
-            disp(shutterRates);
+        function testSamplingRatesAndUnitsOnXYResponses(self)
+            responseNames = {'camera1_XY', 'camera2_XY'};
+            shutterRates = [self.frameRate1, self.frameRate2];
+            
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
                                 
-                samplingRates = [1, shutterRates(i)];
-                samplingRateUnits = [java.lang.String('N/A'), java.lang.String('clock cycles/frame')];
-                dimensionLabels = [java.lang.String('delta-XY'), java.lang.String('time')];
-                assert(strcmp(r.getUnits(), 'pixels'));
+                samplingRates = [shutterRates(i), shutterRates(i)];
+                samplingRateUnits = [java.lang.String('clock cycles/frame'), java.lang.String('clock cycles/frame')];
+                dimensionLabels = [java.lang.String('deltaX'), java.lang.String('deltaY')];
+                units = 'pixels';
+                shape = [self.responseLength, 2];
+                disp(r.getShape());
+                disp(shape);
+                disp(r.getUnits());
+                disp(units);
                 
-                assert(isequal(r.getSamplingUnits(), samplingRateUnits));
+                assert(isequal(r.getShape(), shape'));
+                assert(strcmp(r.getUnits(), units));
+                assert(self.arrayEquals(r.getSamplingUnits(), samplingRateUnits));
                 assert(isequal(r.getSamplingRates(), samplingRates'));
+                assert(self.arrayEquals(r.getDimensionLabels(), dimensionLabels));
+            end
+        end
+        
+        function testSamplingRatesAndUnitsOnOtherResponses(self)
+            responseNames = {'camera1_SurfaceQuality', 'camera2_SurfaceQuality'};
+            shutterRates = [self.frameRate1, self.frameRate2];
+          
+            for i=1:length(responseNames)
+                r = self.epoch.getResponse(responseNames(i));
+                                
+                samplingRates = [shutterRates(i)];
+                samplingRateUnits = java.lang.String('clock cycles/frame');
+                dimensionLabels = [java.lang.String('SurfaceQuality')];
+                units = 'units of quality';
+                shape = [self.responseLength];
+                
+                assert(isequal(r.getShape(), shape));
+                assert(strcmp(r.getUnits(), units));
+                assert(self.arrayEquals(r.getSamplingUnits(), samplingRateUnits));
+                assert(isequal(r.getSamplingRates(), samplingRates));
                 assert(isequal(r.getDimensionLabels(), dimensionLabels));
             end
         end
         
-        function testResponseShape(self)
-            responseNames = {'camera1', 'camera2'};
+        function testSamplingRatesAndUnitsOnShutterSpeedResponses(self)
+            responseNames = {'camera1_ShutterSpeed', 'camera2_ShutterSpeed'};
+            shutterRates = [self.frameRate1, self.frameRate2];
+            
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
+                                
+                samplingRates = [shutterRates(i)];
+                samplingRateUnits = java.lang.String('clock cycles/frame');
+                dimensionLabels = [java.lang.String('ShutterSpeed')];
+                units = 'clock cycles';
+                shape = [self.responseLength];
                 
-                shape = [length(self.shutterSpeed0), 2];
                 assert(isequal(r.getShape(), shape));
+                assert(strcmp(r.getUnits(), units));
+                assert(strcmp(r.getSamplingUnits(), samplingRateUnits));
+                assert(isequal(r.getSamplingRates(), samplingRates));
+                assert(isequal(r.getDimensionLabels(), dimensionLabels));
             end
         end
         
+        function equals = arrayEquals(self, array1, array2)
+            if (length(array1) ~=length(array2))
+                equals = false;
+                return;
+            end
+            for i=1:length(array1)
+                if ~isequal(array1(i), array2(i))
+                    equals = false;
+                    return;
+                end
+            end
+            equals = true;
+        end
+                
      end
 end
