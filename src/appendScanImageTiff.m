@@ -1,7 +1,7 @@
 function epoch = appendScanImageTiff(epoch,...
                                tifFile,...
                                yamlFile,... 
-                               timeZone,...
+                               timezone,...
                                failForBadResponseTimes)
 
     % Add Stimuli and Response information contained in a tif file, to a given Epoch. Return the updated Epoch. 
@@ -18,6 +18,9 @@ function epoch = appendScanImageTiff(epoch,...
     %      also contains the distance (in microns) of the X and Y
     %      dimensions of the image (unless its a linescan experiment, in
     %      which case there is no Y distance)
+    %     
+    %      timezone: Time zone ID where the experiment was performed (e.g.
+    %      'America/New_York').
         
     import ovation.*;
     
@@ -42,8 +45,13 @@ function epoch = appendScanImageTiff(epoch,...
     duration = tif_struct.acq.numberOfFrames/tif_struct.acq.frameRate; %in seconds? NOTE: tif_struct.framesPerFile is bogus
     import org.joda.time.*
     fmt = org.joda.time.format.DateTimeFormat.forPattern('MM/dd/yyyy HH:mm:ss');
-    fmt = fmt.withZone(DateTimeZone.forID('America/New_York'));
-    triggerTimeStart = fmt.parseDateTime(tif_struct.internal.triggerTimeString);
+    fmt = fmt.withZone(DateTimeZone.forID(timezone));
+    ts = tif_struct.internal.triggerTimeString;
+    idx = strfind(ts, '.');
+    if(~isempty(idx))
+        ts = ts(1:(idx-1));
+    end
+    triggerTimeStart = fmt.parseDateTime(ts);
     triggerTimeEnd = triggerTimeStart.plusSeconds(duration);
     if epoch.getStartTime().isAfter(triggerTimeEnd) || epoch.getEndTime().isBefore(triggerTimeStart)
         if failForBadResponseTimes

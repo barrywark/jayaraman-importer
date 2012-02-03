@@ -57,8 +57,9 @@ function appendEphys(epoch, xsg)
        
        if(~isfield(ephys.amplifierSettings.(ampName), 'ampState'))
            warning('ovation:xsg_importer:missingEphysAmpState',...
-               ['Missing ampState for ' ampName '. Skipping this amplifier channel.'])
-       end;
+               ['Missing ampState for ' ampName '. Skipping this amplifier channel.']);
+           continue;
+       end
            
        dev = epoch.getEpochGroup().getExperiment().externalDevice(...
            ampName,...
