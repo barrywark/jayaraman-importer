@@ -10,4 +10,6 @@ test-output.xml
 *.boot
 *.fdb
 *.ap
-
+*.DB
+*.JNL
+*.connection
