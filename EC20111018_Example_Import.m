@@ -4,9 +4,9 @@
 import ovation.*
 
 
-% ec20111018 is a struct array. Each element represents 1 trial and has the
-% following descriptive components. Epoch information is required. The
-% others are optional. Missing components will be skipped during import
+% ec20111018 is a struct array for trials in the ec20111018 example dataset.
+% Each element represents 1 trial. Epoch information is required. The
+% other components are optional. Missing components will be skipped during import
 % (e.g. a missing XSG field will skip XSG import for that given Epoch)
 
 %% Epoch information
@@ -57,7 +57,7 @@ ec20111018.protocolParameters.finish_pos_x = 1;
 ec20111018.protocolParameters.finish_pos_y = 1;
 ec20111018.protocolParameters.finish_period = 1;
 
-%% Stimulus (pattern)
+%% Stimulus informatoin (pattern)
 
 % Pattern and generating .m file (added as Resources)
 ec20111018.stimulus.patternFile = 'test/fixtures/EC20111018/patterns/PatternNew_4WideStripesGlobalToSingle_CL_4.mat';
@@ -99,7 +99,7 @@ ec20111018.stimulus.controllerParameters = struct(); %Struct of additional contr
 ec20111018.stimulus.firmwareVersion = 1;
 
 
-%% Responses (non-Ephus)
+%% Response data (non-Ephus)
 
 % (optional) DAQ responses recorded directly via NiDAQ driver
 ec20111018.responses.channel1Name.deviceParameters = struct();
@@ -128,13 +128,14 @@ channelNameMap('CameraTrigger') = 'CameraTrigger';
 
 ec20111018.xsg.channelNameMap = channelNameMap;
 
-%% Imaging
+%% Imaging (ScanImage)
 
 ec20111018.scanImage.scanImageTIFFPath = 'test/fixtures/EC20111018/Imaging/c232_GC3_rightLT_trial_001.tif';
 ec20111018.scanImage.scanImageConfigYAMLPath = 'test/fixtures/EC20111018/ScanImage_config.yaml';
 
 %% SEQ
 
+% There is no SEQ file for the example data set
 % ec20111018.seq.seqFilePath = 
 % ec20111018.seq.seqConfigYAMLPath = 
 
