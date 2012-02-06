@@ -77,9 +77,9 @@ function epoch = appendTreadmill(epoch,...
     %% Insert the data corresponding to the distance travelled by the fly since the previous frame
     %
     units = 'pixels'; % microns?
-    samplingRate = [frameRate1, frameRate1];
-    samplingRateUnits = {'clock cycles', 'clock cycles'};
-    dimensionLabels = {'deltaX', 'deltaY'};
+    samplingRate = [1, frameRate1];
+    samplingRateUnits = {'pixels', 'clock cycles'};
+    dimensionLabels = {'Delta XY', 'Time'};
 
     length = size(deltaX1, 1);
     shape = [length, 2];
@@ -93,7 +93,7 @@ function epoch = appendTreadmill(epoch,...
             samplingRateUnits,...
             'org.hhmi.jayaraman.treadmill'); 
         
-    samplingRate = [frameRate2, frameRate2];
+    samplingRate = [1, frameRate2];
     ndata = NumericData(reshape([deltaX2, deltaY2], 1, 2*length), shape);
     epoch.insertResponse(camera2_XY,...
             struct2map(device_params),...

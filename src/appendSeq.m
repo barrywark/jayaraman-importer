@@ -17,19 +17,19 @@ function epoch = appendSeq(epoch,...
         
     import ovation.*;
    
-    [seq_struct, fid] = read_seq_header(seqFile);
-    %TODO: get camera number and deriation_parameters from yaml file?
+    [seq_struct, ~] = read_seq_header(seqFile);
+    %TODO: get camera number and device_parameters from yaml file?
     device = epoch.getEpochGroup().getExperiment().externalDevice('camera1', 'manufacturer');
     device_params = struct();
     
-    shape = [seq_struct.Height, seq_struct.Width];
-    units = 'intensity';%% what goes here?
-    samplingRate = [seq_struct.FrameRate, seq_struct.Width, seq_struct.Height];
-    samplingRateUnits = {'Hz', 'pixels', 'pixels'}; % I'm assuming
+    shape = [seq_struct.Width, seq_struct.Height];
+    units = 'N/A';%% what goes here?
+    samplingRate = [seq_struct.FrameRate, seq_struct.FrameRate];
+    samplingRateUnits = {'Hz','Hz'}; 
     dimensionLabels = {'Width', 'Height'}; 
         
     f = java.io.File(seqFile);
-    uri = f.toURI();
+    uri = f.toURI(); % does the escaping properly
     url = uri.toURL();
     
     data_type = NumericDataType(NumericDataFormat.UnsignedIntegerDataType, 8, NumericByteOrder.ByteOrderBigEndian);%% Is this right?
@@ -42,13 +42,10 @@ function epoch = appendSeq(epoch,...
             dimensionLabels,...
             samplingRate,...
             samplingRateUnits,...
-            'org.hhmi.jayaraman.treadmill'); 
+            'org.hhmi.jayaraman.seq'); 
         
     dataRetrievalFunction = 'read_seq_image';
-    r.addProperty('__ovation_url', seqFile);
     r.addProperty('__ovation_retrieval_function', dataRetrievalFunction);
-    r.addProperty('__ovation_retrieval_parameter1', seqFile);
-    r.addProperty('__ovation_retrieval_parameter2', fid);
     
     r.addProperty('BitDepth', seq_struct.BitDepth);
     r.addProperty('BitDepthReal', seq_struct.BitDepthReal);

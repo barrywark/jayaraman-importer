@@ -82,16 +82,12 @@ classdef TestTreadmillImport < TestBase
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
                                 
-                samplingRates = [shutterRates(i), shutterRates(i)];
-                samplingRateUnits = [java.lang.String('clock cycles/frame'), java.lang.String('clock cycles/frame')];
-                dimensionLabels = [java.lang.String('deltaX'), java.lang.String('deltaY')];
+                samplingRates = [1, shutterRates(i)];
+                samplingRateUnits = [java.lang.String('pixels'), java.lang.String('clock cycles')];
+                dimensionLabels = [java.lang.String('Delta XY'), java.lang.String('Time')];
                 units = 'pixels';
                 shape = [self.responseLength, 2];
-                disp(r.getShape());
-                disp(shape);
-                disp(r.getUnits());
-                disp(units);
-                
+                                
                 assert(isequal(r.getShape(), shape'));
                 assert(strcmp(r.getUnits(), units));
                 assert(self.arrayEquals(r.getSamplingUnits(), samplingRateUnits));
@@ -108,16 +104,18 @@ classdef TestTreadmillImport < TestBase
                 r = self.epoch.getResponse(responseNames(i));
                                 
                 samplingRates = [shutterRates(i)];
-                samplingRateUnits = java.lang.String('clock cycles/frame');
-                dimensionLabels = [java.lang.String('SurfaceQuality')];
-                units = 'units of quality';
+                samplingRateUnits = java.lang.String('clock cycles');
+                dimensionLabels = [java.lang.String('Surface Quality')];
+                units = java.lang.String('N/A');
                 shape = [self.responseLength];
                 
                 assert(isequal(r.getShape(), shape));
                 assert(strcmp(r.getUnits(), units));
-                assert(self.arrayEquals(r.getSamplingUnits(), samplingRateUnits));
-                assert(isequal(r.getSamplingRates(), samplingRates));
-                assert(isequal(r.getDimensionLabels(), dimensionLabels));
+                actualSRUnits = r.getSamplingUnits();
+                actualDLabels = r.getDimensionLabels();
+                assert(strcmp(actualSRUnits(1), samplingRateUnits));
+                assert(isequal(r.getSamplingRates(), samplingRates'));
+                assert(strcmp(actualDLabels(1), dimensionLabels));
             end
         end
         
@@ -129,16 +127,18 @@ classdef TestTreadmillImport < TestBase
                 r = self.epoch.getResponse(responseNames(i));
                                 
                 samplingRates = [shutterRates(i)];
-                samplingRateUnits = java.lang.String('clock cycles/frame');
-                dimensionLabels = [java.lang.String('ShutterSpeed')];
+                samplingRateUnits = 'clock cycles';
+                dimensionLabels = 'Shutter Speed';
                 units = 'clock cycles';
                 shape = [self.responseLength];
                 
                 assert(isequal(r.getShape(), shape));
                 assert(strcmp(r.getUnits(), units));
-                assert(strcmp(r.getSamplingUnits(), samplingRateUnits));
-                assert(isequal(r.getSamplingRates(), samplingRates));
-                assert(isequal(r.getDimensionLabels(), dimensionLabels));
+                actualSRUnits = r.getSamplingUnits();
+                actualDLabels = r.getDimensionLabels();
+                assert(strcmp(actualSRUnits(1), samplingRateUnits));
+                assert(isequal(r.getSamplingRates(), samplingRates'));
+                assert(strcmp(actualDLabels(1), dimensionLabels));
             end
         end
         
