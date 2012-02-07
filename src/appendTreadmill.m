@@ -106,7 +106,7 @@ function epoch = appendTreadmill(epoch,...
         
         
     %% Insert the surface quality information for each camera, calculated at each frame 
-    units = 'N/A';% TODO: get right
+    units = 'a.u.';
     samplingRate = [frameRate1];
     samplingRateUnits = {'clock cycles'};
     dimensionLabels = {'Surface Quality'};

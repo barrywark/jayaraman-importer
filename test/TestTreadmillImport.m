@@ -106,7 +106,7 @@ classdef TestTreadmillImport < TestBase
                 samplingRates = [shutterRates(i)];
                 samplingRateUnits = java.lang.String('clock cycles');
                 dimensionLabels = [java.lang.String('Surface Quality')];
-                units = java.lang.String('N/A');
+                units = java.lang.String('a.u.');
                 shape = [self.responseLength];
                 
                 assert(isequal(r.getShape(), shape));

@@ -23,16 +23,15 @@ function epoch = appendSeq(epoch,...
     device_params = struct();
     
     shape = [seq_struct.Width, seq_struct.Height];
-    units = 'N/A';%% what goes here?
-    samplingRate = [seq_struct.FrameRate, seq_struct.FrameRate];
-    samplingRateUnits = {'Hz','Hz'}; 
-    dimensionLabels = {'Width', 'Height'}; 
+    units = 'a.u.';%% what goes here?
+    samplingRate = [seq_struct.FrameRate, 1, 1];
+    samplingRateUnits = {'Hz','pixels', 'pixels'}; 
+    dimensionLabels = {'Frame Number', 'Width', 'Height'}; 
         
-    f = java.io.File(seqFile);
-    uri = f.toURI(); % does the escaping properly
-    url = uri.toURL();
-    
-    data_type = NumericDataType(NumericDataFormat.UnsignedIntegerDataType, 8, NumericByteOrder.ByteOrderBigEndian);%% Is this right?
+    url = java.io.File(seqFile).toURI().toURL().toExternalForm();
+
+    intByteSize = 1; % data is uint8
+    data_type = NumericDataType(NumericDataFormat.UnsignedIntegerDataType, intByteSize, NumericByteOrder.ByteOrderNeutral);
     r = epoch.insertURLResponse(device,...
             struct2map(device_params),...
             url,...
@@ -43,9 +42,6 @@ function epoch = appendSeq(epoch,...
             samplingRate,...
             samplingRateUnits,...
             'org.hhmi.jayaraman.seq'); 
-        
-    dataRetrievalFunction = 'read_seq_image';
-    r.addProperty('__ovation_retrieval_function', dataRetrievalFunction);
     
     r.addProperty('BitDepth', seq_struct.BitDepth);
     r.addProperty('BitDepthReal', seq_struct.BitDepthReal);

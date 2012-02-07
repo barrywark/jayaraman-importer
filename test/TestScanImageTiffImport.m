@@ -22,9 +22,6 @@ classdef TestScanImageTiffImport < TestBase
             self.yaml = ReadYaml([pwd() '/../example.yaml']);            
 
             self.expModificationDate = org.joda.time.DateTime(java.io.File(self.tifFile).lastModified());
-            %self.drNameSuffix = [num2str(expModificationDate.getYear()) '-' ...
-            %    num2str(expModificationDate.getMonthOfYear()) '-'...
-            %    num2str(expModificationDate.getDayOfMonth())];
             
         end
         
@@ -39,22 +36,17 @@ classdef TestScanImageTiffImport < TestBase
             sources = self.context.getSources();
             source = sources(1);
             
-            %if isempty(experiment.getEpochGroups)
-            epochGroup = experiment.insertEpochGroup(source, 'test epoch group', self.expModificationDate, self.expModificationDate);
-            %else
-            %    epochGroups = experiment.getEpochGroups();
-            %    epochGroup = epochGroups(1);
-            %end
-            %if isempty(epochGroup.getEpochs())
+            if isempty(experiment.getEpochGroups)
+                epochGroup = experiment.insertEpochGroup(source, 'test epoch group', self.expModificationDate, self.expModificationDate);
+            else
+                epochGroups = experiment.getEpochGroups();
+                epochGroup = epochGroups(1);
+            end
+            
             self.epoch = epochGroup.insertEpoch(self.expModificationDate,...
                 self.expModificationDate,...
                 'org.hhmi.janelia.jayaraman.testImportMapping',...
                 []);
-            
-            %else
-            %    epochs = epochGroup.getEpochs();
-            %    self.epoch = epochs(1);
-            %end
             
             assert(~isempty(self.epoch));
             
@@ -149,13 +141,13 @@ classdef TestScanImageTiffImport < TestBase
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
                                 
-                assert(strcmp(r.getUnits(), 'volts'));
+                assert(strcmp(r.getUnits(), 'V'));
                 
                 XRate = self.yaml.PMT.XFrameDistance / self.tif_struct.acq.pixelsPerLine;
-                XUnit = java.lang.String('microns/pixel');
+                XUnit = java.lang.String('µm');
                 XLabel = java.lang.String('X');
                 ZRate = self.tif_struct.acq.zStepSize;
-                ZUnit = java.lang.String('microns/step');
+                ZUnit = java.lang.String('µm');
                 ZLabel = java.lang.String('Z');
                 if r.getDeviceParameters().get('linescan');
                     YRate = self.tif_struct.acq.msPerLine + self.tif_struct.acq.scanDelay;
@@ -163,7 +155,7 @@ classdef TestScanImageTiffImport < TestBase
                     YLabel = java.lang.String('Y');
                 else
                     YRate = self.yaml.PMT.YFrameDistance / self.tif_struct.acq.linesPerFrame;
-                    YUnit = java.lang.String('microns/pixel');
+                    YUnit = java.lang.String('µm');
                     YLabel = java.lang.String('Y');
                 end
                 disp(r.getSamplingRates());
