@@ -1,4 +1,4 @@
-% Trial 001
+% Import Trial 001 from EC20111018 Example Data Set
 
 %% Setup
 import ovation.*
@@ -19,18 +19,16 @@ ec20111018.epochEndTime = ec20111018.epochStartTime.plusMillis(1000* 42.030);
 
 ec20111018.protocolID = 'ec.pattern-3-wide'; % ProtocolID identifies similar trials by type
 
+% Protocol parameters
 % These become the protocolParameters of the inserted Epoch. Parameters and
 % values likely come from the experiment controlling .m file. These are
 % taken from Sung Soo's experiment_attention_v0 as an example only.
-
 % Defined somewhere in experiment_attention_v0
 offset_str = 'offset';
 osc_per_str = 'osc_per';
 osc_amp_str = 'osc_amp';
 sh_str = 'sh';
 osc_offset_str = 'osc_offset';
-
-% Protocol parameters
 ec20111018.protocolParameters.id = [offset_str ',' osc_per_str ',' osc_amp_str ',' sh_str ',' osc_offset_str];
 ec20111018.protocolParameters.luminance = offset_str;
 ec20111018.protocolParameters.oscillation_period = 1;
@@ -102,16 +100,25 @@ ec20111018.arena.firmwareVersion = 1;
 %% Response data (non-Ephus)
 
 % (optional) DAQ responses recorded directly via NiDAQ driver
-ec20111018.responses.channel1Name.deviceParameters = struct();
-ec20111018.responses.channel1Name.sampleRateHz = 1000;
+ec20111018.responses.channels(1).channelName = 'channel1';
+ec20111018.responses.channels(1).deviceName = 'channel1'; % Is there a better name?
+ec20111018.responses.channels(1).deviceManufacturer = 'National Instruments DAQmx';
+ec20111018.responses.channels(1).deviceParameters = struct();
+ec20111018.responses.channels(1).sampleRateHz = 1000;
+ec20111018.responses.channels(1).units = 'V';
 
 % To store data in Ovation
-ec20111018.responses.channel1Name.data = []; % Vector of data
+ec20111018.responses.channels(1).data = []; % Vector of data
 
 % To store data on file system
-% ec20111018.responses.channel1Name.dataFilePath = 'path to data file';
-% ec20111018.responses.channel1Name.dataStart = startIndex;
-% ec20111018.responses.channel1Name.dataEnd = endIndex;
+ec20111018.responses.channels(1).dataFileURL = 'file:///path/to/data/file';
+ec20111018.responses.channels(1).dataStartIndex = startIndex; %Optional
+ec20111018.responses.channels(1).dataEndIndex = endIndex; %Optional
+ec20111018.responses.channels(1).shape = [1,10000];
+ec20111018.responses.channels(1).dataType = NumericDataType(NumericDataFormat.FloatingPointDataType,...
+    8,... %double is 8-bytes
+    NumericByteOrder.ByteOrderLittleEndian... % Intel PCs use Little Endian
+    );
 
 
 %% XSG

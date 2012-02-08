@@ -1,5 +1,7 @@
 function epochGroup = ImportJayaramanTrials(epochGroup, trials)
     
+    % Copyright (c) 2012 Physion Consulting LLC
+    
     
     disp('Importing Epochs...');
     for i = 1:length(trials)

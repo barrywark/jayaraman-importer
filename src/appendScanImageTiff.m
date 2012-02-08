@@ -21,6 +21,8 @@ function epoch = appendScanImageTiff(epoch,...
     %     
     %      timezone: Time zone ID where the experiment was performed (e.g.
     %      'America/New_York').
+    
+    % Copyright (c) 2012 Physion Consulting LLC
         
     import ovation.*;
     
