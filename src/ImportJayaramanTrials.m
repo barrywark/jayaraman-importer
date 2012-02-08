@@ -1,4 +1,11 @@
 function epochGroup = ImportJayaramanTrials(epochGroup, trials)
+    % Imports a sequence of trials into the given EpochGroup.
+    %
+    %    epochGroup = ImportJayaramanTrials(epochGroup, trials)
+    %
+    %      epochGroup: New Epochs will be inserted into this EpochGroup
+    %      trials: array of trial structures. See https://github.com/physion/jayaraman-importer/wiki/Proposed-Trial-Struct-Example
+    %        for struct contents.
     
     % Copyright (c) 2012 Physion Consulting LLC
     

@@ -1,4 +1,19 @@
 function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
+    % Inserts a single Fly Arena trial described by the trial strcutre into
+    % the given EpochGroup.
+    %    
+    %    [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
+    %
+    %      epochGroup: The fly arena Epoch will be inserted into this
+    %        EpochGroup.
+    %
+    %      trial: Trial struct (see ImportJayaramanTrials.m)
+    %
+    %    Returns
+    %    -------
+    %
+    %      epoch: newly inserted Epoch
+    %      xsgInserted: true if XSG data was provided and inserted
     
 
     % Copyright (c) 2012 Physion Consulting LLC
