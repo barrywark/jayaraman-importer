@@ -69,8 +69,8 @@ classdef TestSeqImport < TestBase
                 r = self.epoch.getResponse(responseNames(i));
                                 
                 samplingRates = [self.seq_struct.FrameRate, 1, 1];
-                samplingRateUnits = [java.lang.String('Hz'), java.lang.String('pixel/pixel'), java.lang.String('pixel/pixel')];
-                dimensionLabels = [java.lang.String('frame'), java.lang.String('width'), java.lang.String('height')];
+                samplingRateUnits = [java.lang.String('Hz'), java.lang.String('pixels'), java.lang.String('pixels')];
+                dimensionLabels = [java.lang.String('Frame Number'), java.lang.String('Width'), java.lang.String('Height')];
                 assert(strcmp(r.getUnits(), 'a.u.'));
                 
                 assert(isequal(r.getSamplingUnits(), samplingRateUnits));

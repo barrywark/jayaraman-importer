@@ -138,9 +138,7 @@ function epoch = appendScanImageTiff(epoch,...
         
         end
     end
-    
-    %%TODO: fix
-    addpath /Users/kiwiberry/Ovation/jayaraman-importer/yamlmatlab
+
     yaml_struct = ReadYaml(yamlFile);
     
     if tif_struct.acq.savingChannel1
@@ -170,7 +168,7 @@ function epoch = appendScanImageTiff(epoch,...
         import ovation.*;
 
         pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, manufacturer);
-        units = 'volts';% not quite volts - off by some scalar factor
+        units = 'V';% not quite volts - off by some scalar factor
         
         [XSamplingRate, XSamplingUnit, XLabel] = getXResolution(tif_struct, yaml);
         [YSamplingRate, YSamplingUnit, YLabel] = getYResolution(tif_struct, yaml);
@@ -178,11 +176,17 @@ function epoch = appendScanImageTiff(epoch,...
         dimensionLabels = {XLabel, YLabel, ZLabel};
         samplingRate = [XSamplingRate, YSamplingRate, ZSamplingRate];
         samplingRateUnits = {XSamplingUnit, YSamplingUnit, ZSamplingUnit};
-        shape = [0, 0, 0]; %TODO: [tif_struct.acq.pixelsPerLine, tif_struct.acq.linesPerFrame, tif_struct.acq.numberOfZSlices];
+        shape = [tif_struct.acq.pixelsPerLine, tif_struct.acq.linesPerFrame, tif_struct.acq.numberOfZSlices];
 
-        r = epoch.insertResponse(pmt,...
+        url = java.io.File(tifFile).toURI().toURL().toExternalForm();
+        
+        byteSizeOfEachInt = 4;
+        data_type = NumericDataType(NumericDataFormat.UnsignedIntegerDataType, byteSizeOfEachInt, NumericByteOrder.ByteOrderBigEndian);%% Big Endian?
+        r = epoch.insertURLResponse(pmt,...
             struct2map(pmt_params),...
-            NumericData([0, 0, 0], shape),...
+            url,...
+            shape,...
+            data_type,...
             units,...
             dimensionLabels,...
             samplingRate,...
@@ -202,7 +206,7 @@ function epoch = appendScanImageTiff(epoch,...
     function [resolution, units, label] = getXResolution(tif_struct, yaml)
         
         resolution = yaml.PMT.XFrameDistance / tif_struct.acq.pixelsPerLine;
-        units = 'microns/pixel';
+        units = 'µm';
         label = 'X';
     end
 
@@ -212,14 +216,14 @@ function epoch = appendScanImageTiff(epoch,...
             units = 'ms/line';
         else
             resolution = yaml.PMT.YFrameDistance / tif_struct.acq.linesPerFrame;
-            units = 'microns/pixel';
+            units = 'µm';
         end
         label = 'Y';
     end
     
     function [resolution, units, label] = getZResolution(tif_struct)
         resolution = tif_struct.acq.zStepSize;
-        units = 'microns/step';
+        units = 'µm/step';
         label = 'Z';
     end
     

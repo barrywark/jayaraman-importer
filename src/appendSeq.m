@@ -19,30 +19,31 @@ function epoch = appendSeq(epoch,...
         
     import ovation.*;
    
-    [seq_struct, fid] = read_seq_header(seqFile);
-    %TODO: get camera number and deriation_parameters from yaml file?
+    [seq_struct, ~] = read_seq_header(seqFile);
+    %TODO: get camera number and device_parameters from yaml file?
     device = epoch.getEpochGroup().getExperiment().externalDevice('camera1', 'manufacturer');
-    derivation_params = struct();
+    device_params = struct();
     
-    shape = [seq_struct.Height, seq_struct.Width];
-    units = 'intensity';
-    samplingRate = [seq_struct.FrameRate, seq_struct.Width, seq_struct.Height];
-    samplingRateUnits = {'Hz', 'pixels', 'pixels'}; % I'm assuming
-    dimensionLabels = {'Width', 'Height'};
-    r = epoch.insertResponse(device,...
-            struct2map(derivation_params),...
-            NumericData([0, 0, 0], shape),...
+    shape = [seq_struct.Width, seq_struct.Height];
+    units = 'a.u.';%% what goes here?
+    samplingRate = [seq_struct.FrameRate, 1, 1];
+    samplingRateUnits = {'Hz','pixels', 'pixels'}; 
+    dimensionLabels = {'Frame Number', 'Width', 'Height'}; 
+        
+    url = java.io.File(seqFile).toURI().toURL().toExternalForm();
+
+    intByteSize = 1; % data is uint8
+    data_type = NumericDataType(NumericDataFormat.UnsignedIntegerDataType, intByteSize, NumericByteOrder.ByteOrderNeutral);
+    r = epoch.insertURLResponse(device,...
+            struct2map(device_params),...
+            url,...
+            shape,...
+            data_type,...
             units,...
             dimensionLabels,...
             samplingRate,...
             samplingRateUnits,...
-            'public.seq'); % is this right? 
-        
-    dataRetrievalFunction = 'read_seq_image';
-    r.addProperty('__ovation_url', seqFile);
-    r.addProperty('__ovation_retrieval_funcion', dataRetrievalFunction);
-    r.addProperty('__ovation_retrieval_parameter1', seqFile);
-    r.addProperty('__ovation_retrieval_parameter2', fid);
+            'org.hhmi.jayaraman.seq'); 
     
     r.addProperty('BitDepth', seq_struct.BitDepth);
     r.addProperty('BitDepthReal', seq_struct.BitDepthReal);
