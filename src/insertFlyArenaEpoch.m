@@ -43,7 +43,7 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
     
     devParams.controllerMode = trial.arena.controllerMode;
     devParams.controllerParameters = trial.arena.controllerParameters;
-    devParams.firmwareMode = trial.arena.firmwareVersion;
+    devParams.firmwareVersion = trial.arena.firmwareVersion;
     devParams.arenaConfiguration = trial.arena.arenaConfigurationName;
     
     units = 'intensity'; % What are the units of output?

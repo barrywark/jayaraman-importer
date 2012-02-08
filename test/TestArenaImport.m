@@ -42,6 +42,7 @@ classdef TestArenaImport < TestBase
            trial.arena.controllerParameters.param1 = 'foo';
            trial.arena.controllerParameters.param2 = 10;
            trial.arena.arenaConfigurationName = 'test-configuration';
+           trial.arena.controllerParameters.foo = 'bar';
            
            trial.arena.frameNumber = [1,2,3];
            
@@ -104,7 +105,6 @@ classdef TestArenaImport < TestBase
             
             assert(isequal(trial.arena.frameNumber, actual.frameNumber.getFloatingPointData()'));
             
-            %TODO
             assert(s.getUnits().equals('TODO'), 'TODO: stimulus units');
         end
         
@@ -146,10 +146,20 @@ classdef TestArenaImport < TestBase
             assert(trial.arena.controllerMode == devParams.controllerMode);
             assert(trial.arena.firmwareVersion == devParams.firmwareVersion);
             assert(strcmp(trial.arena.arenaConfigurationName, devParams.arenaConfiguration));
-            
-            %TODO controllerParameters
+            assert(strcmp(trial.arena.controllerParameters.foo, char(devParams.controllerParameters__foo)));
             
             assert(strcmp('TODO', char(dev.getManufacturer())), 'TODO: device manufacturer');
+        end
+        
+        function testAppendsStimulusResources(self)
+            protocolID = 'testAppendsStimulusResources';
+            
+            trial = self.trialStruct(protocolID);
+            
+            [epoch,~] = insertFlyArenaEpoch(self.epochGroup,...
+                trial);
+            
+            
         end
         
         
