@@ -2,6 +2,8 @@ function epoch = appendXSG(epoch,...
         xsg,...
         timezone)
     
+    % Copyright (c) 2012 Physion Consulting LLC
+    
     import ovaiton.*;
     
     if(~strcmp(xsg.header.xsg.xsg.xsgFileFormatVersion,'1.2.0'))
@@ -54,6 +56,13 @@ function appendEphys(epoch, xsg)
    
    for i = 1:length(ampNames)
        ampName = ampNames{i};
+       
+       if(~isfield(ephys.amplifierSettings.(ampName), 'ampState'))
+           warning('ovation:xsg_importer:missingEphysAmpState',...
+               ['Missing ampState for ' ampName '. Skipping this amplifier channel.']);
+           continue;
+       end
+           
        dev = epoch.getEpochGroup().getExperiment().externalDevice(...
            ampName,...
            ephys.amplifierSettings.(ampName).ampState.uHardwareType); %TODO should we have the real manufacturer?
@@ -113,6 +122,11 @@ function appendResponses(epoch, xsg)
     resp = xsg.header.acquirer.acquirer;
     
    for i = 1:length(resp.channels)
+       
+       if(~isfield(xsg.data.acquirer, ['channelName_' num2str(i)]))
+           continue;
+       end
+       
        dev = epoch.getEpochGroup().getExperiment().externalDevice(...
            resp.channels(i).channelName,...
            'Ephus');

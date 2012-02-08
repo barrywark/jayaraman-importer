@@ -14,6 +14,8 @@ function epoch = appendSeq(epoch,...
     %      yamlFile: path to the user-defined yamlfile. This file contains
     %      a camera name and manufacturer for the camera used to generate
     %      this seq file.
+    
+    % Copyright (c) 2012 Physion Consulting LLC
         
     import ovation.*;
    

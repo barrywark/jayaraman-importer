@@ -3,6 +3,9 @@ function epoch = insertXSGEpoch(epochGroup,...
         protocolID,...
         timezone)
     
+    
+    % Copyright (c) 2012 Physion Consulting LLC
+    
     import ovation.*
     
     if(~strcmp(xsg.header.xsg.xsg.xsgFileFormatVersion,'1.2.0'))
