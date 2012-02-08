@@ -22,7 +22,7 @@ classdef TestBase < TestCase
             import ovation.*;
             
             % N.B. these values should match those in runtestsuite
-            self.connection_file = 'ovation/matlab_test.connection';
+            self.connection_file = fullfile(pwd(), 'ovation/matlab_test.connection');
             self.username = 'TestUser';
             self.password = 'password';
             

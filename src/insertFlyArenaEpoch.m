@@ -20,12 +20,18 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
     
     import ovation.*;
     
+    xsgInserted = false;
+    
     epoch = epochGroup.insertEpoch(trial.epochStartTime,...
         trial.epochEndTime,...
         trial.protocolID,...
         struct2map(trial.protocolParameters));
     
     %% Add stimulus for arena
+    
+    if(~isfield(trial, 'arena'))
+        return;
+    end
     
     params = trial.arena.patternParameters;
     if(isfield(trial.arena, 'frameNumber') && ...
@@ -41,9 +47,16 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
     devParams.arenaConfiguration = trial.arena.arenaConfigurationName;
     
     units = 'intensity'; % What are the units of output?
+    
+    if(isfield(trial.arena, 'patternGenerationFunction'))
+        [~,patternName,~] = fileparts(trial.arena.patternGenerationFunction);
+    elseif(isfield(trial.arena, 'patternFile'))
+        [~,patternName,~] = fileparts(trial.arena.patternFile);
+    end
+    
     stimulus = epoch.insertStimulus(device,...
         struct2map(devParams),...
-        'org.hhmi.janelia.fly-arena',... %TODO
+        ['org.hhmi.janelia.fly-arena.' patternName],...
         struct2map(params),...
         units,...
         []);
@@ -52,8 +65,13 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
     %% Add resources
     
     % TODO attach or referece (as URL)?
-    stimulus.addResource(trial.arena.patternFile); % .mat
-    stimulus.addResource(trial.arena.patternGenerationFunction); % .m
+    if(isfield(trial.arena, 'patternFile'))
+        stimulus.addResource(trial.arena.patternFile); % .mat
+    end
+    
+    if(isfield(trial.arena, 'patternGenerationFunction'))
+        stimulus.addResource(trial.arena.patternGenerationFunction); % .m
+    end
     
     if(isfield(trial.arena, 'arenaConfigurationFile') && ...
             ~isempty(trial.arena.arenaConfigurationFile))
@@ -67,7 +85,6 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
     
     
     %% Links for XSG channels
-    xsgInserted = false;
     if(isfield(trial.arena, 'xsgXSequenceChannel') || ...
             isfield(trial.arena, 'xsgYSequenceChannel'))
         
