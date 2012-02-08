@@ -33,8 +33,6 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
         params.frameNumber = trial.arena.frameNumber;
     end
     
-    %TODO--handle SD card mapping: params.patternSDIndex = trial.arena.SDcard;
-    
     device = epochGroup.getExperiment().externalDevice('Fly Arena', '<manufacturer>'); %TODO
     
     devParams.controllerMode = trial.arena.controllerMode;
