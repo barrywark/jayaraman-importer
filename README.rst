@@ -68,6 +68,8 @@ To run the automated test suite:
 License
 -------
 
+*Please see license.txt for bundled project licenses*
+
 Copyright (c) 2012, Physion Consulting LLC
 All rights reserved.
 
