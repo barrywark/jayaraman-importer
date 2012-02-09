@@ -85,7 +85,7 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
     
     
     %% Links for XSG channels
-    if(isfield(trial.arena, 'xsgXSequenceChannel') || ...
+    if(isfield(trial.arena, 'xsgXSequenceChannel') && ...
             isfield(trial.arena, 'xsgYSequenceChannel'))
         
         xsg = load(trial.xsg.xsgFilePath, '-mat');
@@ -94,18 +94,13 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
             xsg,...
             epoch.getStartTime().getZone().getID());
         
-        %TODO
-        if(isfield(trial.arena, 'xsgXSequenceChannel'))
-            disp('        adding xsgXSequenceChannel link');
-            stimulus.addProperty('xsgXSequenceResponse',...
-                epoch.getResponse(trial.arena.xsgXSequenceChannel));
-        end
+        disp('        adding xsgXSequenceChannel link');
+        stimulus.addProperty('xsgXSequenceResponse',...
+            epoch.getResponse(trial.arena.xsgXSequenceChannel));
         
-        if(isfield(trial.arena, 'xsgYSequenceChannel'))
-            disp('        adding xsgYSequenceChannel link');
-            stimulus.addProperty('xsgYSequenceResponse',...
-                epoch.getResponse(trial.arena.xsgYSequenceChannel));
-        end
+        disp('        adding xsgYSequenceChannel link');
+        stimulus.addProperty('xsgYSequenceResponse',...
+            epoch.getResponse(trial.arena.xsgYSequenceChannel));
         
         xsgInserted = true;
     else
