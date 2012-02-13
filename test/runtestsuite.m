@@ -25,7 +25,7 @@ function runtestsuite(test_folder)
     
     % Delete the test database if it exists
     if(exist(connection_file, 'file') ~= 0)
-        ovation.util.deleteLocalOvationDatabase(connection_file);
+        ovation.util.deleteLocalOvationDatabase(connection_file, true);
     end
     
     % Create a test database
