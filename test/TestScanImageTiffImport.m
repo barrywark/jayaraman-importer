@@ -15,11 +15,11 @@ classdef TestScanImageTiffImport < TestBase
             import ovation.*;
             addpath /opt/ovation;
             
-            self.tifFile = [pwd() '/fixtures/EC20091021_GC3_0_27B03_A1_L_022.tif'];
+            self.tifFile = fullfile(pwd(), 'fixtures/EC20091021_GC3_0_27B03_A1_L_022.tif');
             
             self.tif_struct = scim_openTif(self.tifFile, 'header');
 
-            self.yaml = ReadYaml([pwd() '/../example.yaml']);            
+            self.yaml = ReadYaml(fullfile(pwd(), '../example.yaml'));            
 
             self.expModificationDate = org.joda.time.DateTime(java.io.File(self.tifFile).lastModified());
             

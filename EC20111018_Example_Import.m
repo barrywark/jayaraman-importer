@@ -104,7 +104,7 @@ ec20111018.responses.channels(1).channelName = 'channel1';
 ec20111018.responses.channels(1).deviceName = 'channel1'; % Is there a better name?
 ec20111018.responses.channels(1).deviceManufacturer = 'National Instruments DAQmx';
 ec20111018.responses.channels(1).deviceParameters = struct();
-ec20111018.responses.channels(1).sampleRateHz = 1000;
+ec20111018.responses.channels(1).samplingRateHz = 1000;
 ec20111018.responses.channels(1).units = 'V';
 
 % To store data in Ovation
