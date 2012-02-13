@@ -48,14 +48,14 @@ classdef TestScanImageTiffImport < TestBase
             
             assert(~isempty(self.epoch));
             
-            self.config.scanImage.PMT.pmt1.filter = 'red';
-            self.config.scanImage.PMT.pmt1.manufacturer = 'PMT Co.';
-            self.config.scanImage.PMT.pmt2.filter = 'green';
-            self.config.scanImage.PMT.pmt2.manufacturer = 'PMT Co.';
-            self.config.scanImage.XFrameDistance = 10;
-            self.config.scanImage.XFrameDistanceUnits = 'µm';
-            self.config.scanImage.YFrameDistance = 10;
-            self.config.scanImage.YFrameDistanceUnits = 'µm';
+            self.config.PMT.pmt1.filter = 'red';
+            self.config.PMT.pmt1.manufacturer = 'PMT Co.';
+            self.config.PMT.pmt2.filter = 'green';
+            self.config.PMT.pmt2.manufacturer = 'PMT Co.';
+            self.config.XFrameDistance = 10;
+            self.config.XFrameDistanceUnits = 'µm';
+            self.config.YFrameDistance = 10;
+            self.config.YFrameDistanceUnits = 'nm';
 
             appendScanImageTiff(self.epoch,...
                 self.tifFile,...
@@ -153,8 +153,8 @@ classdef TestScanImageTiffImport < TestBase
                                 
                 assert(strcmp(r.getUnits(), 'V'));
                 
-                XRate = self.yaml.PMT.XFrameDistance / self.tif_struct.acq.pixelsPerLine;
-                XUnit = java.lang.String('µm');
+                XRate = self.config.XFrameDistance / self.tif_struct.acq.pixelsPerLine;
+                XUnit = java.lang.String([self.config.XFrameDistanceUnits '/pixel']);
                 XLabel = java.lang.String('X');
                 ZRate = self.tif_struct.acq.zStepSize;
                 ZUnit = java.lang.String('µm');
@@ -164,8 +164,8 @@ classdef TestScanImageTiffImport < TestBase
                     YUnit = java.lang.String('ms/line');
                     YLabel = java.lang.String('Y');
                 else
-                    YRate = self.yaml.PMT.YFrameDistance / self.tif_struct.acq.linesPerFrame;
-                    YUnit = java.lang.String('µm');
+                    YRate = self.config.YFrameDistance / self.tif_struct.acq.linesPerFrame;
+                    YUnit = java.lang.String([self.config.YFrameDistanceUnits '/pixel']);
                     YLabel = java.lang.String('Y');
                 end
                 disp(r.getSamplingRates());

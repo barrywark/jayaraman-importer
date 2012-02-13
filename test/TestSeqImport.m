@@ -53,7 +53,7 @@ classdef TestSeqImport < TestBase
                 assert(false, 'SEQ file fixture missing');
             end
             
-            appendSeq(self.epoch, self.seqFile, config);
+            appendSeq(self.epoch, self.seqFile, self.config);
         end
         
         
@@ -82,9 +82,9 @@ classdef TestSeqImport < TestBase
                     self.config.samplingRateY];
                 samplingRateUnits = [java.lang.String('Hz'), ...
                     java.lang.String(self.config.samplingRateUnitsX), ...
-                    java.lang.String(self.config.samlingRateUnitsY)];
+                    java.lang.String(self.config.samplingRateUnitsY)];
                 dimensionLabels = [java.lang.String('Frame Number'), java.lang.String('Width'), java.lang.String('Height')];
-                assert(strcmp(r.getUnits(), 'a.u.'));
+                assert(strcmp(r.getUnits(), 'intensity (a.u.)'));
                 
                 assert(isequal(r.getSamplingUnits(), samplingRateUnits));
                 assertElementsAlmostEqual(r.getSamplingRates(), samplingRates');

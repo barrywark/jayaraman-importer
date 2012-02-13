@@ -180,7 +180,7 @@ classdef TestImportJayaramanTrials < TestBase
             ec20111018.seq.samplingRateUnitsY = 'µm/pixel';
             
             %% Treadmill
-            ec20111018.treadmill.treadmillPath = fullfile(pwd(), 'fixtures/EC20111018/Behavior/behavior1_001.txt');
+            ec20111018.treadmill.treadmillPath = fullfile(pwd(), 'fixtures/EC20111018/Behavior/behavior1_0001.txt');
             ec20111018.treadmill.cameraManufacturer = 'Some manufacturer';
             
             trials = repmat(ec20111018, 1, 2);
