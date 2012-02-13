@@ -4,8 +4,11 @@ function epochGroup = ImportJayaramanTrials(epochGroup, trials)
     %    epochGroup = ImportJayaramanTrials(epochGroup, trials)
     %
     %      epochGroup: New Epochs will be inserted into this EpochGroup
-    %      trials: array of trial structures. See https://github.com/physion/jayaraman-importer/wiki/Proposed-Trial-Struct-Example
-    %        for struct contents.
+    %
+    %      trials: Array of trial structures. Each trial to import is
+    %      described by one array element.
+    %        See https://github.com/physion/jayaraman-importer/wiki for struct 
+    %        contents.
     
     % Copyright (c) 2012 Physion Consulting LLC
     
@@ -21,14 +24,14 @@ function epochGroup = ImportJayaramanTrials(epochGroup, trials)
         
         [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial);
         
-        if(isfield(trial, 'xsg') && ~xsgInserted)
+        if(isfield(trial, 'xsg') && ~xsgInserted && ~isempty(trial.xsg))
             xsg = load(trial.xsg.xsgFilePath, '-mat');
             appendXSG(epoch,...
                 xsg,...
                 epoch.getStartTime().getZone().getID());
         end
         
-        if(isfield(trial,'scanImage'))
+        if(isfield(trial,'scanImage') && ~isempty(trial.scanImage))
             appendScanImageTiff(epoch,...
                 trial.scanImage.scanImageTIFFPath,...
                 trial.scanImage.scanImageConfigYAMLPath,...
@@ -36,7 +39,7 @@ function epochGroup = ImportJayaramanTrials(epochGroup, trials)
                 true);
         end
         
-        if(isfield(trial, 'seq'))
+        if(isfield(trial, 'seq') && ~isempty(trial.seq))
             appendSeq(epoch,...
                 trial.seq.seqFilePath,...
                 trial.seq.seqConfigYAMLPath);
