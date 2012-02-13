@@ -157,7 +157,7 @@ classdef TestScanImageTiffImport < TestBase
                 XUnit = java.lang.String([self.config.XFrameDistanceUnits '/pixel']);
                 XLabel = java.lang.String('X');
                 ZRate = self.tif_struct.acq.zStepSize;
-                ZUnit = java.lang.String('µm');
+                ZUnit = java.lang.String('µm/step');
                 ZLabel = java.lang.String('Z');
                 if r.getDeviceParameters().get('linescan');
                     YRate = self.tif_struct.acq.msPerLine + self.tif_struct.acq.scanDelay;

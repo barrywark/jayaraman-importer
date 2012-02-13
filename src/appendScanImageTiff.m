@@ -38,7 +38,7 @@ function epoch = appendScanImageTiff(epoch,...
     end
     
 
-    error(nargchk(4, 5, nargin)); %#ok<NCHKI>
+    error(nargchk(4, 5, nargin));
     if(nargin < 5)
         failForBadResponseTimes = false;
     end
@@ -117,21 +117,21 @@ function epoch = appendScanImageTiff(epoch,...
         name = acq_names(i);
         name = name{1};
         
-        if ~nameInStruct(name, ignored_fields.acq) % if name is NOT in ignored_fields, add it to device params list
+        if ~isfield(ignored_fields.acq, name) % if name is NOT in ignored_fields, add it to device params list
             if name(end) == '1'
-                if ~nameInStruct(name(1:end-1), ignored_fields.acq)
+                if ~isfield(ignored_fields.acq, name(1:end-1))
                     pmt_parameters.pmt1.(name) = tif_struct.acq.(name);
                 end
             elseif name(end) == '2'
-                if ~nameInStruct(name(1:end-1), ignored_fields.acq)
+                if ~isfield(ignored_fields.acq, name(1:end-1))
                     pmt_parameters.pmt2.(name) = tif_struct.acq.(name);
                 end
             elseif name(end) == '3'
-                if ~nameInStruct(name(1:end-1), ignored_fields.acq)
+                if ~isfield(ignored_fields.acq, name(1:end-1))
                     pmt_parameters.pmt3.(name) = tif_struct.acq.(name);
                 end
             elseif name(end) == '4'
-                if ~nameInStruct(name(1:end-1), ignored_fields.acq)
+                if ~isfield(ignored_fields.acq, name(1:end-1))
                     pmt_parameters.pmt4.(name) = tif_struct.acq.(name);
                 end
             else
@@ -226,16 +226,5 @@ function epoch = appendScanImageTiff(epoch,...
         resolution = tif_struct.acq.zStepSize;
         units = 'µm/step';
         label = 'Z';
-    end
-    
-    % no good set object in matlab ?? :(
-    function inStruct = nameInStruct(name, s)
-        try 
-            s.(name); % if name is in struct, return 1
-            inStruct = true;
-            
-        catch % if not, return 0
-            inStruct = false;
-        end
     end
 end

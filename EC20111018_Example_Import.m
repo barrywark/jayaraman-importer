@@ -143,8 +143,10 @@ ec20111018.xsg.channelNameMap = channelNameMap;
 %% Imaging (ScanImage)
 
 ec20111018.scanImage.scanImageTIFFPath = 'test/fixtures/EC20111018/Imaging/c232_GC3_rightLT_trial_001.tif';
-ec20111018.scanImage.PMT.pmt1 = 'red';
-ec20111018.scanImage.PMT.pmt2 = 'green';
+ec20111018.scanImage.PMT.pmt1.filter = 'red';
+ec20111018.scanImage.PMT.pmt1.manufacturer = 'PMT Co.';
+ec20111018.scanImage.PMT.pmt2.filter = 'green';
+ec20111018.scanImage.PMT.pmt2.manufacturer = 'PMT Co.';
 ec20111018.scanImage.XFrameDistance = 10;
 ec20111018.scanImage.XFrameDistanceUnits = 'µm';
 ec20111018.scanImage.YFrameDistance = 10;
