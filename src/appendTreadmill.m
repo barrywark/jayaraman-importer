@@ -1,6 +1,6 @@
 function epoch = appendTreadmill(epoch,...
                                treadmillFile,...
-                               yamlFile)
+                               treadmillConfig)
                                       
     % Add Stimuli and Response information contained in a tif file, to a given Epoch. Return the updated Epoch. 
     %
@@ -12,9 +12,7 @@ function epoch = appendTreadmill(epoch,...
     %      treadmillFile: path to the generated .TXT file containing the
     %      Response data
     %
-    %      yamlFile: path to the user-defined yamlfile. This file contains
-    %      a camera name and manufacturer for each camera used to generate
-    %      this .TXT file.
+    %      treadmillConfig: Struct containing Treadmill configuration.
     
     % Copyright (c) 2012 Physion Consulting LLC
         
@@ -34,12 +32,19 @@ function epoch = appendTreadmill(epoch,...
     
     
     %TODO: get camera number and deriation_parameters from yaml file?
-    camera1_XY = epoch.getEpochGroup().getExperiment().externalDevice('camera1_XY', 'manufacturer');
-    camera2_XY = epoch.getEpochGroup().getExperiment().externalDevice('camera2_XY', 'manufacturer');
-    camera1_SurfaceQuality = epoch.getEpochGroup().getExperiment().externalDevice('camera1_SurfaceQuality', 'manufacturer');
-    camera2_SurfaceQuality = epoch.getEpochGroup().getExperiment().externalDevice('camera2_SurfaceQuality', 'manufacturer');
-    camera1_ShutterSpeed = epoch.getEpochGroup().getExperiment().externalDevice('camera1_ShutterSpeed', 'manufacturer');
-    camera2_ShutterSpeed = epoch.getEpochGroup().getExperiment().externalDevice('camera2_ShutterSpeed', 'manufacturer');
+    camera1_XY = epoch.getEpochGroup().getExperiment().externalDevice('camera1_XY',...
+        treadmillConfig.cameraManufacturer);
+    camera2_XY = epoch.getEpochGroup().getExperiment().externalDevice('camera2_XY',...
+        treadmillConfig.cameraManufacturer);
+    camera1_SurfaceQuality = epoch.getEpochGroup().getExperiment().externalDevice('camera1_SurfaceQuality',...
+        treadmillConfig.cameraManufacturer);
+    camera2_SurfaceQuality = epoch.getEpochGroup().getExperiment().externalDevice('camera2_SurfaceQuality',...
+        treadmillConfig.cameraManufacturer);
+    camera1_ShutterSpeed = epoch.getEpochGroup().getExperiment().externalDevice('camera1_ShutterSpeed',...
+        treadmillConfig.cameraManufacturer);
+    camera2_ShutterSpeed = epoch.getEpochGroup().getExperiment().externalDevice('camera2_ShutterSpeed',...
+        treadmillConfig.cameraManufacturer);
+    
     device_params = struct();
     device_params.zero_centered = 128;
 
@@ -78,7 +83,7 @@ function epoch = appendTreadmill(epoch,...
     
     %% Insert the data corresponding to the distance travelled by the fly since the previous frame
     %
-    units = 'pixels'; % microns?
+    units = 'pixels'; % TODO check units (microns?)
     samplingRate = [1, frameRate1];
     samplingRateUnits = {'pixels', 'clock cycles'};
     dimensionLabels = {'Delta XY', 'Time'};

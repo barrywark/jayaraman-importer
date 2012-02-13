@@ -5,8 +5,8 @@ classdef TestSeqImport < TestBase
         seq_struct
         expModificationDate
         epoch
-        yaml
         fid
+        config
     end
     
     methods
@@ -17,8 +17,7 @@ classdef TestSeqImport < TestBase
             addpath /opt/ovation;
             
             self.seqFile = 'fixtures/092311cal7.seq';
-            
-            self.yaml = ReadYaml([pwd() '/../example.yaml']);            
+                      
             self.expModificationDate = org.joda.time.DateTime(java.io.File(self.seqFile).lastModified());
             [self.seq_struct, self.fid] = read_seq_header(self.seqFile);
             
@@ -44,7 +43,17 @@ classdef TestSeqImport < TestBase
             
             assert(~isempty(self.epoch));
             
-            appendSeq(self.epoch, self.seqFile, self.yaml);
+            self.config.cameraManufacturer = 'Physion';
+            self.config.samplingRateX = 12;
+            self.config.samplingRateY = 12;
+            self.config.samplingRateUnitsX = 'µm/pixel';
+            self.config.samplingRateUnitsY = 'µm/pixel';
+            
+            if(~exist(self.seqFile, 'file'))
+                assert(false, 'SEQ file fixture missing');
+            end
+            
+            appendSeq(self.epoch, self.seqFile, config);
         end
         
         
@@ -68,8 +77,12 @@ classdef TestSeqImport < TestBase
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
                                 
-                samplingRates = [self.seq_struct.FrameRate, 1, 1];
-                samplingRateUnits = [java.lang.String('Hz'), java.lang.String('pixels'), java.lang.String('pixels')];
+                samplingRates = [self.seq_struct.FrameRate, ...
+                    self.config.samplingRateX,...
+                    self.config.samplingRateY];
+                samplingRateUnits = [java.lang.String('Hz'), ...
+                    java.lang.String(self.config.samplingRateUnitsX), ...
+                    java.lang.String(self.config.samlingRateUnitsY)];
                 dimensionLabels = [java.lang.String('Frame Number'), java.lang.String('Width'), java.lang.String('Height')];
                 assert(strcmp(r.getUnits(), 'a.u.'));
                 

@@ -1,5 +1,5 @@
 classdef TestTreadmillImport < TestBase
-
+    
     properties
         treadmillFile
         expModificationDate
@@ -19,14 +19,14 @@ classdef TestTreadmillImport < TestBase
             
             self.treadmillFile = [pwd() '/fixtures/092311tr7.txt'];
             
-            self.yaml = ReadYaml([pwd() '/../example.yaml']);            
+            self.yaml = ReadYaml([pwd() '/../example.yaml']);
             self.expModificationDate = org.joda.time.DateTime(java.io.File(self.treadmillFile).lastModified());
             
             [~,~,~,~,~,~,~,~,A,B,C,D] = textread(self.treadmillFile);
             shutterSpeed1 = arrayfun(@(high, low) uint16(low) + high*(2^8), A, B);
             shutterSpeed2 = arrayfun(@(high, low) uint16(low) + high*(2^8), C, D);
-            self.frameRate1 = median(shutterSpeed1);
-            self.frameRate2 = median(shutterSpeed2);
+            self.frameRate1 = median(double(shutterSpeed1));
+            self.frameRate2 = median(double(shutterSpeed2));
             self.responseLength = length(shutterSpeed1);
             addpath .
             
@@ -42,19 +42,20 @@ classdef TestTreadmillImport < TestBase
             experiment = experiments(1);
             sources = self.context.getSources();
             source = sources(1);
-           
-                epochGroup = experiment.insertEpochGroup(source, 'test epoch group', self.expModificationDate, self.expModificationDate);
-           
-                self.epoch = epochGroup.insertEpoch(self.expModificationDate,...
-                    self.expModificationDate,...
-                    'org.hhmi.janelia.jayaraman.testImportMapping',...
-                    []);
-
-                       
-            appendTreadmill(self.epoch, self.treadmillFile, 'example.yaml');
+            
+            epochGroup = experiment.insertEpochGroup(source, 'test epoch group', self.expModificationDate, self.expModificationDate);
+            
+            self.epoch = epochGroup.insertEpoch(self.expModificationDate,...
+                self.expModificationDate,...
+                'org.hhmi.janelia.jayaraman.testImportMapping',...
+                []);
+            
+            
+            config.cameraManufacturer = 'Some Camera';
+            appendTreadmill(self.epoch, self.treadmillFile, config);
         end
         
-      
+        
         function testEpochShouldExist(self)
             import ovation.*;
             assert(self.epoch ~= []);
@@ -81,13 +82,13 @@ classdef TestTreadmillImport < TestBase
             
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
-                                
+                
                 samplingRates = [1, shutterRates(i)];
                 samplingRateUnits = [java.lang.String('pixels'), java.lang.String('clock cycles')];
                 dimensionLabels = [java.lang.String('Delta XY'), java.lang.String('Time')];
                 units = 'pixels';
                 shape = [self.responseLength, 2];
-                                
+                
                 assert(isequal(r.getShape(), shape'));
                 assert(strcmp(r.getUnits(), units));
                 assert(self.arrayEquals(r.getSamplingUnits(), samplingRateUnits));
@@ -99,10 +100,10 @@ classdef TestTreadmillImport < TestBase
         function testSamplingRatesAndUnitsOnOtherResponses(self)
             responseNames = {'camera1_SurfaceQuality', 'camera2_SurfaceQuality'};
             shutterRates = [self.frameRate1, self.frameRate2];
-          
+            
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
-                                
+                
                 samplingRates = [shutterRates(i)];
                 samplingRateUnits = java.lang.String('clock cycles');
                 dimensionLabels = [java.lang.String('Surface Quality')];
@@ -125,7 +126,7 @@ classdef TestTreadmillImport < TestBase
             
             for i=1:length(responseNames)
                 r = self.epoch.getResponse(responseNames(i));
-                                
+                
                 samplingRates = [shutterRates(i)];
                 samplingRateUnits = 'clock cycles';
                 dimensionLabels = 'Shutter Speed';
@@ -155,6 +156,6 @@ classdef TestTreadmillImport < TestBase
             end
             equals = true;
         end
-                
-     end
+        
+    end
 end

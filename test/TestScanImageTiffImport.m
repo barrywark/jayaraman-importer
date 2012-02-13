@@ -5,7 +5,7 @@ classdef TestScanImageTiffImport < TestBase
         tif_struct
         expModificationDate
         epoch
-        yaml
+        config
     end
     
     methods
@@ -18,8 +18,6 @@ classdef TestScanImageTiffImport < TestBase
             self.tifFile = fullfile(pwd(), 'fixtures/EC20091021_GC3_0_27B03_A1_L_022.tif');
             
             self.tif_struct = scim_openTif(self.tifFile, 'header');
-
-            self.yaml = ReadYaml(fullfile(pwd(), '../example.yaml'));            
 
             self.expModificationDate = org.joda.time.DateTime(java.io.File(self.tifFile).lastModified());
             
@@ -50,7 +48,19 @@ classdef TestScanImageTiffImport < TestBase
             
             assert(~isempty(self.epoch));
             
-            appendScanImageTiff(self.epoch, self.tifFile, 'example.yaml', 'America/New_York');
+            self.config.scanImage.PMT.pmt1.filter = 'red';
+            self.config.scanImage.PMT.pmt1.manufacturer = 'PMT Co.';
+            self.config.scanImage.PMT.pmt2.filter = 'green';
+            self.config.scanImage.PMT.pmt2.manufacturer = 'PMT Co.';
+            self.config.scanImage.XFrameDistance = 10;
+            self.config.scanImage.XFrameDistanceUnits = 'µm';
+            self.config.scanImage.YFrameDistance = 10;
+            self.config.scanImage.YFrameDistanceUnits = 'µm';
+
+            appendScanImageTiff(self.epoch,...
+                self.tifFile,...
+                self.config,...
+                'America/New_York');
 
         end
         
