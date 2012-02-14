@@ -160,7 +160,7 @@ function epoch = appendScanImageTiff(epoch,...
     function r = addResponse(deviceName, pmtInfo, pmt_params, epoch, tif_struct, scanImageConfig)
         import ovation.*;
 
-        pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, pmt.manufacturer);
+        pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, pmtInfo.manufacturer);
         units = 'V';% not quite volts - off by some scalar factor
         
         [XSamplingRate, XSamplingUnit, XLabel] = getXResolution(tif_struct, scanImageConfig);
