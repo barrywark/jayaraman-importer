@@ -4,22 +4,21 @@ function epoch = appendScanImageTiff(epoch,...
                                timezone,...
                                failForBadResponseTimes)
 
-    % Add Stimuli and Response information contained in a tif file, to a given Epoch. Return the updated Epoch. 
+    % Add Stimuli and Response information contained in a tif file, to a
+    % given Epoch. Returns the updated Epoch.
     %
-    %    epoch = AppendTifData(epoch, tifFile)
+    %    epoch = appendScanImageTiff(epoch, tifFile, scanImageConfig,...
+    %                                 timezone)
     %                                 
     %      epoch: ovation.Epoch object. The Epoch to attach the Response
     %      and Stimulus to. 
     %
     %      tifFile: path to the scanImage generated .TIF file
     %
-    %      scanImageConfig: Matlab struct describing scanImage
-    %      configuration. This struct should describe the mapping between pmt and
-    %      coloredFilter (if there is one). It shoudl also contain the distance
-    %      (in microns) of the X and Y dimensions of the image (unless its
-    %      a linescan experiment, in which case there is no Y distance).
-    %      See https://github.com/physion/jayaraman-importer/wiki for
-    %      struct template.
+    %      scanImageConfig: Matlab struct describing scanImage frame and
+    %      PMT configuration.
+    %        See https://github.com/physion/jayaraman-importer/wiki for
+    %        struct template.
     %     
     %      timezone: Time zone ID where the experiment was performed (e.g.
     %      'America/New_York').

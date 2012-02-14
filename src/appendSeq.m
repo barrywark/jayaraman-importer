@@ -2,14 +2,17 @@ function epoch = appendSeq(epoch,...
         seqFile,...
         seqConfig)
     
-    % Add Stimuli and Response information contained in a tif file, to a given Epoch. Return the updated Epoch.
+    % Add Stimuli and Response information contained in a tif file, to a
+    % given Epoch. Return the updated Epoch.
     %
-    %    epoch = appendSeq(epoch, seqFile, yamlFile)
+    %    epoch = appendSeq(epoch, seqFile, seqConfig)
     %
     %      epoch: ovation.Epoch object. The Epoch to attach the Response
     %      and Stimulus to.
     %
-    %      seqFile: path to the generated .SEQ file
+    %      seqFile: path to the generated .SEQ file    
+    %        See https://github.com/physion/jayaraman-importer/wiki for
+    %        struct template.
     %
     %      seqConfig: Struct describing seq capture configuration.
     

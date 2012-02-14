@@ -2,9 +2,10 @@ function epoch = appendTreadmill(epoch,...
                                treadmillFile,...
                                treadmillConfig)
                                       
-    % Add Stimuli and Response information contained in a tif file, to a given Epoch. Return the updated Epoch. 
+    % Add Stimuli and Response information contained in a tif file, to a
+    % given Epoch. Returns the updated Epoch.
     %
-    %    epoch = appendTreadmill(epoch, treadmillFile, yamlFile)
+    %    epoch = appendTreadmill(epoch, treadmillFile, treadmillConfig)
     %                                 
     %      epoch: ovation.Epoch object. The Epoch to attach the Response
     %      to.
@@ -13,6 +14,8 @@ function epoch = appendTreadmill(epoch,...
     %      Response data
     %
     %      treadmillConfig: Struct containing Treadmill configuration.
+    %        See https://github.com/physion/jayaraman-importer/wiki for
+    %        struct template.
     
     % Copyright (c) 2012 Physion Consulting LLC
         

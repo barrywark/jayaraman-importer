@@ -7,8 +7,8 @@ function epochGroup = ImportJayaramanTrials(epochGroup, trials)
     %
     %      trials: Array of trial structures. Each trial to import is
     %      described by one array element.
-    %        See https://github.com/physion/jayaraman-importer/wiki for struct 
-    %        contents.
+    %        See https://github.com/physion/jayaraman-importer/wiki for
+    %        struct contents.
     
     % Copyright (c) 2012 Physion Consulting LLC
     

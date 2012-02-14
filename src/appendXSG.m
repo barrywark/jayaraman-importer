@@ -2,6 +2,18 @@ function epoch = appendXSG(epoch,...
         xsg,...
         timezone)
     
+    % Add Stimuli and Response information contained in an Ephus XSG, to a given Epoch. Returns the updated Epoch. 
+    %
+    %    epoch = appendXSG(epoch, xsgPath, timezone)
+    %                                 
+    %      epoch: ovation.Epoch object. The Epoch to attach the Response
+    %      to.
+    %
+    %      xsg: path to an Ephus XSG file
+    %
+    %      timezone: Time zone ID where the experiment was performed (e.g.
+    %      'America/New_York').
+    
     % Copyright (c) 2012 Physion Consulting LLC
     
     import ovaiton.*;
