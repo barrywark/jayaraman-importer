@@ -50,8 +50,8 @@ function epoch = appendTreadmill(epoch,...
 
     shutterSpeed1 = arrayfun(@(high, low) uint16(low) + high*(2^8), highShutterSpeed1, lowShutterSpeed1);
     shutterSpeed2 = arrayfun(@(high, low) uint16(low) + high*(2^8), highShutterSpeed2, lowShutterSpeed2);
-    frameRate1 = median(shutterSpeed1);
-    frameRate2 = median(shutterSpeed2);
+    frameRate1 = median(double(shutterSpeed1));
+    frameRate2 = median(double(shutterSpeed2));
     
     %% Insert the shutter speeds calculated per frame on each camera
     % 

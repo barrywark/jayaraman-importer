@@ -162,7 +162,19 @@ classdef TestArenaImport < TestBase
             assert(strcmp(trial.arena.arenaConfigurationName, devParams.arenaConfiguration));
             assert(strcmp(trial.arena.controllerParameters.foo, char(devParams.controllerParameters__foo)));
             
-            assert(strcmp('TODO', char(dev.getManufacturer())), 'TODO: device manufacturer');
+            assert(strcmp('IORodeo', char(dev.getManufacturer())), 'Default manufacturer');
+            
+            trial.arena.manufacturer = 'HHMI';
+            
+            [epoch,~] = insertFlyArenaEpoch(self.epochGroup,...
+                trial);
+            
+            s = epoch.getStimulus('Fly Arena');
+            dev = s.getExternalDevice();
+            
+            assert(dev.getManufacturer().equals(trial.arena.manufacturer),...
+                'User-specified manufacturer');
+            
         end
         
         function testAppendsStimulusResources(self)

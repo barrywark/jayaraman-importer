@@ -39,7 +39,12 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
         params.frameNumber = trial.arena.frameNumber;
     end
     
-    device = epochGroup.getExperiment().externalDevice('Fly Arena', '<manufacturer>'); %TODO
+    if(isfield(trial.arena, 'manufacturer'))
+        manufacturer = trial.arena.manufacturer;
+    else
+        manufacturer = 'IORodeo';
+    end
+    device = epochGroup.getExperiment().externalDevice('Fly Arena', manufacturer); %TODO
     
     devParams.controllerMode = trial.arena.controllerMode;
     devParams.controllerParameters = trial.arena.controllerParameters;

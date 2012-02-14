@@ -157,7 +157,7 @@ function epoch = appendScanImageTiff(epoch,...
 
     % empty response with url pointing to response
 
-    function r = addResponse(deviceName, pmt, pmt_params, epoch, tif_struct, scanImageConfig)
+    function r = addResponse(deviceName, pmtInfo, pmt_params, epoch, tif_struct, scanImageConfig)
         import ovation.*;
 
         pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, pmt.manufacturer);
@@ -192,7 +192,7 @@ function epoch = appendScanImageTiff(epoch,...
         r.addProperty('__ovation_retrieval_parameter2', 'cell');
         r.addProperty('__ovation_retrieval_parameter3', deviceName(end));
         
-        r.addProperty('filterColor', pmt.filter);
+        r.addProperty('filterColor', pmtInfo.filter);
 
     end
 
