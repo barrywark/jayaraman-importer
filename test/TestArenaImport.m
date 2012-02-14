@@ -109,7 +109,17 @@ classdef TestArenaImport < TestBase
             
             assert(isequal(trial.arena.frameNumber, actual.frameNumber.getFloatingPointData()'));
             
-            assert(s.getUnits().equals('TODO'), 'TODO: stimulus units');
+            assert(s.getUnits().equals('intensity'), 'Default units');
+            
+            trial.arena.stimulusUnits = 'some-units';
+            [epoch,~] = insertFlyArenaEpoch(self.epochGroup,...
+                trial);
+            
+            s = epoch.getStimulus('Fly Arena');
+            
+            assert(s.getUnits().equals(trial.arena.stimulusUnits),...
+                'User specified units');
+            
         end
         
         function testStimulusInsertionWithoutPatternGenerationFunction(self)
@@ -152,7 +162,19 @@ classdef TestArenaImport < TestBase
             assert(strcmp(trial.arena.arenaConfigurationName, devParams.arenaConfiguration));
             assert(strcmp(trial.arena.controllerParameters.foo, char(devParams.controllerParameters__foo)));
             
-            assert(strcmp('TODO', char(dev.getManufacturer())), 'TODO: device manufacturer');
+            assert(strcmp('IORodeo', char(dev.getManufacturer())), 'Default manufacturer');
+            
+            trial.arena.manufacturer = 'HHMI';
+            
+            [epoch,~] = insertFlyArenaEpoch(self.epochGroup,...
+                trial);
+            
+            s = epoch.getStimulus('Fly Arena');
+            dev = s.getExternalDevice();
+            
+            assert(dev.getManufacturer().equals(trial.arena.manufacturer),...
+                'User-specified manufacturer');
+            
         end
         
         function testAppendsStimulusResources(self)

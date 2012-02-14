@@ -39,14 +39,23 @@ function [epoch,xsgInserted] = insertFlyArenaEpoch(epochGroup, trial)
         params.frameNumber = trial.arena.frameNumber;
     end
     
-    device = epochGroup.getExperiment().externalDevice('Fly Arena', '<manufacturer>'); %TODO
+    if(isfield(trial.arena, 'manufacturer'))
+        manufacturer = trial.arena.manufacturer;
+    else
+        manufacturer = 'IORodeo';
+    end
+    device = epochGroup.getExperiment().externalDevice('Fly Arena', manufacturer); %TODO
     
     devParams.controllerMode = trial.arena.controllerMode;
     devParams.controllerParameters = trial.arena.controllerParameters;
     devParams.firmwareVersion = trial.arena.firmwareVersion;
     devParams.arenaConfiguration = trial.arena.arenaConfigurationName;
     
-    units = 'intensity'; % What are the units of output?
+    if(isfield(trial.arena, 'stimulusUnits'))
+        units = trial.arena.stimulusUnits;
+    else
+        units = 'intensity';
+    end
     
     if(isfield(trial.arena, 'patternGenerationFunction'))
         [~,patternName,~] = fileparts(trial.arena.patternGenerationFunction);

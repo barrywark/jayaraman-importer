@@ -158,18 +158,32 @@ classdef TestImportJayaramanTrials < TestBase
             
             ec20111018.xsg.channelNameMap = channelNameMap;
             
-            %% Imaging (ScanImage)
+            %% Imaging (ScanImage): This ScanImage file doesn't match the fixture
             
-            ec20111018.scanImage.scanImageTIFFPath = fullfile(pwd(), 'fixtures/EC20111018/Imaging/c232_GC3_rightLT_trial_001.tif');
-            ec20111018.scanImage.scanImageConfigYAMLPath = fullfile(pwd(), 'fixtures/EC20111018/Imaging/ScanImage_config.yaml');
+%             ec20111018.scanImage.scanImageTIFFPath = fullfile(pwd(), 'fixtures/EC20111018/Imaging/c232_GC3_rightLT_trial_001.tif');
+%             ec20111018.scanImage.PMT(1).filter = 'red';
+%             ec20111018.scanImage.PMT(1).manufacturer = 'PMT Co.';
+%             ec20111018.scanImage.PMT(2).filter = 'green';
+%             ec20111018.scanImage.PMT(2).manufacturer = 'PMT Co.';
+%             ec20111018.scanImage.XFrameDistance = 10;
+%             ec20111018.scanImage.XFrameDistanceUnits = 'µm';
+%             ec20111018.scanImage.YFrameDistance = 10;
+%             ec20111018.scanImage.YFrameDistanceUnits = 'µm';
             
             %% SEQ
             
-            % There is no SEQ file for the example data set
-            % ec20111018.seq.seqFilePath =
-            % ec20111018.seq.seqConfigYAMLPath =
+            ec20111018.seq.seqFilePath = fullfile(pwd(), 'fixtures/092311cal7.seq');
+            ec20111018.seq.cameraManufacturer = 'manufacturer';
+            ec20111018.seq.samplingRateX = 12;
+            ec20111018.seq.samplingRateUnitsX = 'µm/pixel';
+            ec20111018.seq.samplingRateY = 12;
+            ec20111018.seq.samplingRateUnitsY = 'µm/pixel';
             
-            trials = repmat(ec20111018, 1, 100);
+            %% Treadmill
+            ec20111018.treadmill.treadmillPath = fullfile(pwd(), 'fixtures/EC20111018/Behavior/behavior1_0001.txt');
+            ec20111018.treadmill.cameraManufacturer = 'Some manufacturer';
+            
+            trials = repmat(ec20111018, 1, 10);
             
             tic;
             ImportJayaramanTrials(self.epochGroup, trials);

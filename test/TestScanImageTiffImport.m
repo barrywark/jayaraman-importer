@@ -5,7 +5,7 @@ classdef TestScanImageTiffImport < TestBase
         tif_struct
         expModificationDate
         epoch
-        yaml
+        config
     end
     
     methods
@@ -18,8 +18,6 @@ classdef TestScanImageTiffImport < TestBase
             self.tifFile = fullfile(pwd(), 'fixtures/EC20091021_GC3_0_27B03_A1_L_022.tif');
             
             self.tif_struct = scim_openTif(self.tifFile, 'header');
-
-            self.yaml = ReadYaml(fullfile(pwd(), '../example.yaml'));            
 
             self.expModificationDate = org.joda.time.DateTime(java.io.File(self.tifFile).lastModified());
             
@@ -50,7 +48,19 @@ classdef TestScanImageTiffImport < TestBase
             
             assert(~isempty(self.epoch));
             
-            appendScanImageTiff(self.epoch, self.tifFile, 'example.yaml', 'America/New_York');
+            self.config.PMT(1).filter = 'red';
+            self.config.PMT(1).manufacturer = 'PMT Co.';
+            self.config.PMT(2).filter = 'green';
+            self.config.PMT(2).manufacturer = 'PMT Co.';
+            self.config.XFrameDistance = 10;
+            self.config.XFrameDistanceUnits = 'µm';
+            self.config.YFrameDistance = 10;
+            self.config.YFrameDistanceUnits = 'nm';
+
+            appendScanImageTiff(self.epoch,...
+                self.tifFile,...
+                self.config,...
+                'America/New_York');
 
         end
         
@@ -143,22 +153,22 @@ classdef TestScanImageTiffImport < TestBase
                                 
                 assert(strcmp(r.getUnits(), 'V'));
                 
-                XRate = self.yaml.PMT.XFrameDistance / self.tif_struct.acq.pixelsPerLine;
-                XUnit = java.lang.String('µm');
+                XRate = self.config.XFrameDistance / self.tif_struct.acq.pixelsPerLine;
+                XUnit = java.lang.String([self.config.XFrameDistanceUnits '/pixel']);
                 XLabel = java.lang.String('X');
                 ZRate = self.tif_struct.acq.zStepSize;
-                ZUnit = java.lang.String('µm');
+                ZUnit = java.lang.String('µm/step');
                 ZLabel = java.lang.String('Z');
                 if r.getDeviceParameters().get('linescan');
                     YRate = self.tif_struct.acq.msPerLine + self.tif_struct.acq.scanDelay;
                     YUnit = java.lang.String('ms/line');
                     YLabel = java.lang.String('Y');
                 else
-                    YRate = self.yaml.PMT.YFrameDistance / self.tif_struct.acq.linesPerFrame;
-                    YUnit = java.lang.String('µm');
+                    YRate = self.config.YFrameDistance / self.tif_struct.acq.linesPerFrame;
+                    YUnit = java.lang.String([self.config.YFrameDistanceUnits '/pixel']);
                     YLabel = java.lang.String('Y');
                 end
-                disp(r.getSamplingRates());
+                
                 assert(isequal(r.getSamplingUnits(), [XUnit, YUnit, ZUnit]));
                 assertElementsAlmostEqual(r.getSamplingRates(), [XRate, YRate, ZRate]');
                 assert(isequal(r.getDimensionLabels(), [XLabel, YLabel, ZLabel]));

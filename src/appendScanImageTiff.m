@@ -1,23 +1,24 @@
 function epoch = appendScanImageTiff(epoch,...
                                tifFile,...
-                               yamlFile,... 
+                               scanImageConfig,... 
                                timezone,...
                                failForBadResponseTimes)
 
-    % Add Stimuli and Response information contained in a tif file, to a given Epoch. Return the updated Epoch. 
+    % Add Stimuli and Response information contained in a tif file, to a
+    % given Epoch. Returns the updated Epoch.
     %
-    %    epoch = AppendTifData(epoch, tifFile)
+    %    epoch = appendScanImageTiff(epoch, tifFile, scanImageConfig,...
+    %                                 timezone)
     %                                 
     %      epoch: ovation.Epoch object. The Epoch to attach the Response
     %      and Stimulus to. 
     %
     %      tifFile: path to the scanImage generated .TIF file
     %
-    %      yamlFile: path to the user-defined yamlfile. This file contains
-    %      a mapping between pmt and coloredFilter (if there is one). It
-    %      also contains the distance (in microns) of the X and Y
-    %      dimensions of the image (unless its a linescan experiment, in
-    %      which case there is no Y distance)
+    %      scanImageConfig: Matlab struct describing scanImage frame and
+    %      PMT configuration.
+    %        See https://github.com/physion/jayaraman-importer/wiki for
+    %        struct template.
     %     
     %      timezone: Time zone ID where the experiment was performed (e.g.
     %      'America/New_York').
@@ -35,9 +36,8 @@ function epoch = appendScanImageTiff(epoch,...
             ' is not supported.']);
     end
     
-    manufacturer = 'pmt_manufacturer'; % fix
 
-    error(nargchk(4, 5, nargin)); %#ok<NCHKI>
+    error(nargchk(4, 5, nargin));
     if(nargin < 5)
         failForBadResponseTimes = false;
     end
@@ -61,7 +61,8 @@ function epoch = appendScanImageTiff(epoch,...
         'Times recorded in scanImage file do not match times recorded in this epoch!');
             throw(err);
         else
-            disp('Error occurred!! Times recorded in scanImage file do not match times recorded in this epoch!');
+            warning('ovation:scanimage_tiff_importer:timeMismatch',...
+                'Times recorded in scanImage file do not match times recorded in this epoch.');
         end
         % todo: maybe an interactive prompt so the user can choose to
         % ignore this warning?
@@ -93,7 +94,7 @@ function epoch = appendScanImageTiff(epoch,...
     ignored_fields.cycle = 1;
     ignored_fields.internal = 1;
         
-    %% create response contained in tif/yaml files
+    %% create response contained in tif files
     device_params.configName = tif_struct.configName;
     device_params.software_version = tif_struct.software.version;
     device_params.software_version_minor_revision = tif_struct.software.minorRev;
@@ -115,22 +116,22 @@ function epoch = appendScanImageTiff(epoch,...
         name = acq_names(i);
         name = name{1};
         
-        if ~nameInStruct(name, ignored_fields.acq) % if name is NOT in ignored_fields, add it to device params list
+        if ~isfield(ignored_fields.acq, name) % if name is NOT in ignored_fields, add it to device params list
             if name(end) == '1'
-                if ~nameInStruct(name(1:end-1), ignored_fields.acq)
+                if ~isfield(ignored_fields.acq, name(1:end-1))
                     pmt_parameters.pmt1.(name) = tif_struct.acq.(name);
                 end
             elseif name(end) == '2'
-                if ~nameInStruct(name(1:end-1), ignored_fields.acq)
-                    pmt_parameters.pmt1.(name) = tif_struct.acq.(name);
+                if ~isfield(ignored_fields.acq, name(1:end-1))
+                    pmt_parameters.pmt2.(name) = tif_struct.acq.(name);
                 end
             elseif name(end) == '3'
-                if ~nameInStruct(name(1:end-1), ignored_fields.acq)
-                    pmt_parameters.pmt1.(name) = tif_struct.acq.(name);
+                if ~isfield(ignored_fields.acq, name(1:end-1))
+                    pmt_parameters.pmt3.(name) = tif_struct.acq.(name);
                 end
             elseif name(end) == '4'
-                if ~nameInStruct(name(1:end-1), ignored_fields.acq)
-                    pmt_parameters.pmt1.(name) = tif_struct.acq.(name);
+                if ~isfield(ignored_fields.acq, name(1:end-1))
+                    pmt_parameters.pmt4.(name) = tif_struct.acq.(name);
                 end
             else
                 device_params.(name) = tif_struct.acq.(name);
@@ -139,39 +140,30 @@ function epoch = appendScanImageTiff(epoch,...
         end
     end
 
-    yaml_struct = ReadYaml(yamlFile);
     
-    if tif_struct.acq.savingChannel1
-        deviceName = 'pmt1';
-        params = mergeStruct(pmt_parameters.pmt1, device_params);
-        addResponse(deviceName, manufacturer, params, epoch, tif_struct, yaml_struct);  
+    for c = 1:4
+        if tif_struct.acq.(['savingChannel' num2str(c)])
+            deviceName = ['pmt' num2str(c)];
+            params = mergeStruct(pmt_parameters.(['pmt' num2str(c)]), device_params);
+            addResponse(deviceName,...
+                scanImageConfig.PMT(c),...
+                params, epoch,...
+                tif_struct,...
+                scanImageConfig);
+        end
     end
-    if tif_struct.acq.savingChannel2
-        deviceName = 'pmt2';
-        params = mergeStruct(pmt_parameters.pmt2, device_params);
-        addResponse(deviceName, manufacturer, params, epoch, tif_struct, yaml_struct);
-    end
-    if tif_struct.acq.savingChannel3
-        deviceName = 'pmt3';
-        params = mergeStruct(pmt_parameters.pmt3, device_params);
-        addResponse(deviceName, manufacturer, params, epoch, tif_struct, yaml_struct); 
-    end
-    if tif_struct.acq.savingChannel4
-        deviceName = 'pmt4';
-        params = mergeStruct(pmt_parameters.pmt4, device_params);
-        addResponse(deviceName, manufacturer, params, epoch, tif_struct, yaml_struct);
-    end
+    
 
     % empty response with url pointing to response
 
-    function r = addResponse(deviceName, manufacturer, pmt_params, epoch, tif_struct, yaml)
+    function r = addResponse(deviceName, pmtInfo, pmt_params, epoch, tif_struct, scanImageConfig)
         import ovation.*;
 
-        pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, manufacturer);
+        pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, pmtInfo.manufacturer);
         units = 'V';% not quite volts - off by some scalar factor
         
-        [XSamplingRate, XSamplingUnit, XLabel] = getXResolution(tif_struct, yaml);
-        [YSamplingRate, YSamplingUnit, YLabel] = getYResolution(tif_struct, yaml);
+        [XSamplingRate, XSamplingUnit, XLabel] = getXResolution(tif_struct, scanImageConfig);
+        [YSamplingRate, YSamplingUnit, YLabel] = getYResolution(tif_struct, scanImageConfig);
         [ZSamplingRate, ZSamplingUnit, ZLabel] = getZResolution(tif_struct);
         dimensionLabels = {XLabel, YLabel, ZLabel};
         samplingRate = [XSamplingRate, YSamplingRate, ZSamplingRate];
@@ -199,24 +191,24 @@ function epoch = appendScanImageTiff(epoch,...
         r.addProperty('__ovation_retrieval_parameter2', 'cell');
         r.addProperty('__ovation_retrieval_parameter3', deviceName(end));
         
-        r.addProperty('filterColor', yaml.PMT.(deviceName));
+        r.addProperty('filterColor', pmtInfo.filter);
 
     end
 
-    function [resolution, units, label] = getXResolution(tif_struct, yaml)
+    function [resolution, units, label] = getXResolution(tif_struct, scanImageConfig)
         
-        resolution = yaml.PMT.XFrameDistance / tif_struct.acq.pixelsPerLine;
-        units = 'µm';
+        resolution = scanImageConfig.XFrameDistance / tif_struct.acq.pixelsPerLine;
+        units = [scanImageConfig.XFrameDistanceUnits '/pixel'];
         label = 'X';
     end
 
-    function [resolution, units, label] = getYResolution(tif_struct, yaml)
+    function [resolution, units, label] = getYResolution(tif_struct, scanImageConfig)
         if tif_struct.acq.linescan %%TODO is this right??
             resolution = tif_struct.acq.msPerLine + tif_struct.acq.scanDelay ;
             units = 'ms/line';
         else
-            resolution = yaml.PMT.YFrameDistance / tif_struct.acq.linesPerFrame;
-            units = 'µm';
+            resolution = scanImageConfig.YFrameDistance / tif_struct.acq.linesPerFrame;
+            units = [scanImageConfig.YFrameDistanceUnits '/pixel'];
         end
         label = 'Y';
     end
@@ -225,16 +217,5 @@ function epoch = appendScanImageTiff(epoch,...
         resolution = tif_struct.acq.zStepSize;
         units = 'µm/step';
         label = 'Z';
-    end
-    
-    % no good set object in matlab ?? :(
-    function inStruct = nameInStruct(name, s)
-        try 
-            s.(name); % if name is in struct, return 1
-            inStruct = true;
-            
-        catch % if not, return 0
-            inStruct = false;
-        end
     end
 end

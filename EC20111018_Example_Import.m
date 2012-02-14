@@ -97,6 +97,11 @@ ec20111018.arena.controllerParameters = struct(); %Struct of additional controll
 ec20111018.arena.firmwareVersion = 1;
 
 
+%% Treadmill (Behavior)
+
+ec20111018.treadmill.treadmillPath = 'path/to/treadmill.txt';
+ec20111018.treadmill.config.cameraManufacturer = 'Camera manufacturer';
+
 %% Response data (non-Ephus)
 
 % (optional) DAQ responses recorded directly via NiDAQ driver
@@ -138,13 +143,24 @@ ec20111018.xsg.channelNameMap = channelNameMap;
 %% Imaging (ScanImage)
 
 ec20111018.scanImage.scanImageTIFFPath = 'test/fixtures/EC20111018/Imaging/c232_GC3_rightLT_trial_001.tif';
-ec20111018.scanImage.scanImageConfigYAMLPath = 'test/fixtures/EC20111018/ScanImage_config.yaml';
+ec20111018.scanImage.PMT.pmt1.filter = 'red';
+ec20111018.scanImage.PMT.pmt1.manufacturer = 'PMT Co.';
+ec20111018.scanImage.PMT.pmt2.filter = 'green';
+ec20111018.scanImage.PMT.pmt2.manufacturer = 'PMT Co.';
+ec20111018.scanImage.XFrameDistance = 10;
+ec20111018.scanImage.XFrameDistanceUnits = 'µm';
+ec20111018.scanImage.YFrameDistance = 10;
+ec20111018.scanImage.YFrameDistanceUnits = 'µm';
 
 %% SEQ
 
 % There is no SEQ file for the example data set
-% ec20111018.seq.seqFilePath = 
-% ec20111018.seq.seqConfigYAMLPath = 
+% ec20111018.seq.seqFilePath = 'path/to/seq';
+% ec20111018.seq.config.cameraManufacturer = 'manufacturer';
+% ec20111018.seq.samplingRateX = 12
+% ec20111018.seq.samplingRateUnitsX = 'µm/pixel'
+% ec20111018.seq.samplingRateY = 12
+% ec20111018.seq.samplingRateUnitsY = 'µm/pixel'
 
 %% Run the import
 % Aassuming experiment (an ovation.Experiment) and context (an ovation.DataContext) exists in the workspace
