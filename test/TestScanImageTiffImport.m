@@ -168,7 +168,7 @@ classdef TestScanImageTiffImport < TestBase
                     YUnit = java.lang.String([self.config.YFrameDistanceUnits '/pixel']);
                     YLabel = java.lang.String('Y');
                 end
-                disp(r.getSamplingRates());
+                
                 assert(isequal(r.getSamplingUnits(), [XUnit, YUnit, ZUnit]));
                 assertElementsAlmostEqual(r.getSamplingRates(), [XRate, YRate, ZRate]');
                 assert(isequal(r.getDimensionLabels(), [XLabel, YLabel, ZLabel]));
