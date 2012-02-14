@@ -109,7 +109,17 @@ classdef TestArenaImport < TestBase
             
             assert(isequal(trial.arena.frameNumber, actual.frameNumber.getFloatingPointData()'));
             
-            assert(s.getUnits().equals('TODO'), 'TODO: stimulus units');
+            assert(s.getUnits().equals('intensity'), 'Default units');
+            
+            trial.arena.stimulusUnits = 'some-units';
+            [epoch,~] = insertFlyArenaEpoch(self.epochGroup,...
+                trial);
+            
+            s = epoch.getStimulus('Fly Arena');
+            
+            assert(s.getUnits().equals(trial.arena.stimulusUnits),...
+                'User specified units');
+            
         end
         
         function testStimulusInsertionWithoutPatternGenerationFunction(self)

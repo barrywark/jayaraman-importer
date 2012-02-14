@@ -142,33 +142,25 @@ function epoch = appendScanImageTiff(epoch,...
     end
 
     
-    if tif_struct.acq.savingChannel1
-        deviceName = 'pmt1';
-        params = mergeStruct(pmt_parameters.pmt1, device_params);
-        addResponse(deviceName, scanImageConfig.PMT.pmt1.manufacturer, params, epoch, tif_struct, scanImageConfig);  
+    for c = 1:4
+        if tif_struct.acq.(['savingChannel' num2str(c)])
+            deviceName = ['pmt' num2str(c)];
+            params = mergeStruct(pmt_parameters.(['pmt' num2str(c)]), device_params);
+            addResponse(deviceName,...
+                scanImageConfig.PMT(c),...
+                params, epoch,...
+                tif_struct,...
+                scanImageConfig);
+        end
     end
-    if tif_struct.acq.savingChannel2
-        deviceName = 'pmt2';
-        params = mergeStruct(pmt_parameters.pmt2, device_params);
-        addResponse(deviceName, scanImageConfig.PMT.pmt2.manufacturer, params, epoch, tif_struct, scanImageConfig);
-    end
-    if tif_struct.acq.savingChannel3
-        deviceName = 'pmt3';
-        params = mergeStruct(pmt_parameters.pmt3, device_params);
-        addResponse(deviceName, scanImageConfig.PMT.pmt3.manufacturer, params, epoch, tif_struct, scanImageConfig); 
-    end
-    if tif_struct.acq.savingChannel4
-        deviceName = 'pmt4';
-        params = mergeStruct(pmt_parameters.pmt4, device_params);
-        addResponse(deviceName, scanImageConfig.PMT.pmt4.manufacturer, params, epoch, tif_struct, scanImageConfig);
-    end
+    
 
     % empty response with url pointing to response
 
-    function r = addResponse(deviceName, manufacturer, pmt_params, epoch, tif_struct, scanImageConfig)
+    function r = addResponse(deviceName, pmt, pmt_params, epoch, tif_struct, scanImageConfig)
         import ovation.*;
 
-        pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, manufacturer);
+        pmt = epoch.getEpochGroup().getExperiment().externalDevice(deviceName, pmt.manufacturer);
         units = 'V';% not quite volts - off by some scalar factor
         
         [XSamplingRate, XSamplingUnit, XLabel] = getXResolution(tif_struct, scanImageConfig);
@@ -200,7 +192,7 @@ function epoch = appendScanImageTiff(epoch,...
         r.addProperty('__ovation_retrieval_parameter2', 'cell');
         r.addProperty('__ovation_retrieval_parameter3', deviceName(end));
         
-        r.addProperty('filterColor', scanImageConfig.PMT.(deviceName).filter);
+        r.addProperty('filterColor', pmt.filter);
 
     end
 

@@ -161,10 +161,10 @@ classdef TestImportJayaramanTrials < TestBase
             %% Imaging (ScanImage): This ScanImage file doesn't match the fixture
             
 %             ec20111018.scanImage.scanImageTIFFPath = fullfile(pwd(), 'fixtures/EC20111018/Imaging/c232_GC3_rightLT_trial_001.tif');
-%             ec20111018.scanImage.PMT.pmt1.filter = 'red';
-%             ec20111018.scanImage.PMT.pmt1.manufacturer = 'PMT Co.';
-%             ec20111018.scanImage.PMT.pmt2.filter = 'green';
-%             ec20111018.scanImage.PMT.pmt2.manufacturer = 'PMT Co.';
+%             ec20111018.scanImage.PMT(1).filter = 'red';
+%             ec20111018.scanImage.PMT(1).manufacturer = 'PMT Co.';
+%             ec20111018.scanImage.PMT(2).filter = 'green';
+%             ec20111018.scanImage.PMT(2).manufacturer = 'PMT Co.';
 %             ec20111018.scanImage.XFrameDistance = 10;
 %             ec20111018.scanImage.XFrameDistanceUnits = 'µm';
 %             ec20111018.scanImage.YFrameDistance = 10;

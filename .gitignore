@@ -1,6 +1,7 @@
 *~
 .DS_Store
 *.seq
+*.mat
 
 test/ovation
 

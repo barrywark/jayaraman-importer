@@ -48,10 +48,10 @@ classdef TestScanImageTiffImport < TestBase
             
             assert(~isempty(self.epoch));
             
-            self.config.PMT.pmt1.filter = 'red';
-            self.config.PMT.pmt1.manufacturer = 'PMT Co.';
-            self.config.PMT.pmt2.filter = 'green';
-            self.config.PMT.pmt2.manufacturer = 'PMT Co.';
+            self.config.PMT(1).filter = 'red';
+            self.config.PMT(1).manufacturer = 'PMT Co.';
+            self.config.PMT(2).filter = 'green';
+            self.config.PMT(2).manufacturer = 'PMT Co.';
             self.config.XFrameDistance = 10;
             self.config.XFrameDistanceUnits = 'µm';
             self.config.YFrameDistance = 10;
