@@ -165,17 +165,16 @@ ec20111018.scanImage.YFrameDistanceUnits = 'µm';
 %% Run the import
 % Aassuming experiment (an ovation.Experiment) and context (an ovation.DataContext) exists in the workspace
 
-srcs = context.getSources('none');
-if(numel(srcs) > 0)
-    blankSource = srcs(1);
-else
-    blankSource = context.insertSource('none');
-end
 
 fly = context.insertSource('fly');
 fly.addProperty('flyID', 'ID-in-the-fly-database');
 
-sessionGroup = experiment.insertEpochGroup(blankSource, 'session', ec20111018.epochStartTime);
+% Insert a session EpochGroup. Because this group does not have a Source,
+% you cannot add Epochs directly to this group.
+sessionGroup = experiment.insertEpochGroup('session', ec20111018.epochStartTime);
+
+% Insert a child EpochGroup associated with the fly Source. Epochs are
+% added to this EpochGroup.
 flyGroup = experiment.insertEpochGroup(fly, 'fly', ec20111018.epochStartTime);
 
 ImportJayaramanTrials(flyGroup, ec20111018);
