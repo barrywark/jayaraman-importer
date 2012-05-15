@@ -1,6 +1,6 @@
 % Copyright (c) 2012 Physion Consulting, LLC
 
-function runtestsuite(test_folder)
+function build_test_database(test_folder)
     % This script builds a new Ovation database for testing and imports the
     % test fixture. Run this script from the pladps-importer/test directory.
     %
@@ -34,9 +34,7 @@ function runtestsuite(test_folder)
     connection_file = ovation.util.createLocalOvationDatabase(fullfile(test_folder, 'ovation'), ...
         'matlab_test',...
         username,...
-        password,...
-        'license.txt',...
-        'ovation-development');
+        password);
     
     import ovation.*
     
@@ -49,7 +47,4 @@ function runtestsuite(test_folder)
     expt = project.insertExperiment('TestImportMapping',...
         datetime());
     source = ctx.insertSource('animal');
-    
-    
-    runtests(test_folder, '-xmlfile', 'test-output.xml');
 end
